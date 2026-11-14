@@ -1,7 +1,7 @@
 import {randomUUID} from 'node:crypto';
 import type {PoolClient} from 'pg';
 import {pool} from './db';
-import {previousMonth} from './validation.mjs';
+import {previousMonth,mascotFamily} from './validation.mjs';
 export class AppError extends Error{constructor(message:string,public status=400){super(message)}}
 function conflict(){throw new AppError('Data sudah berubah. Muat ulang lalu coba lagi.',409)}
 export async function getData(user:string,month:string){
@@ -15,7 +15,7 @@ async function account(c:PoolClient,user:string,id:string){const q=await c.query
 async function budget(c:PoolClient,user:string,id:string){const q=await c.query('SELECT id,category_id,account_id,account_name,amount,archived,version,to_char(month,\'YYYY-MM\') AS month FROM budgets WHERE id=$1 AND user_id=$2 FOR UPDATE',[id,user]);if(!q.rowCount)throw new AppError('Pos budget tidak ditemukan.',404);return q.rows[0]}
 export async function mutate(user:string,action:string,d:any){const c=await pool.connect();try{await c.query('BEGIN');await c.query("SELECT pg_advisory_xact_lock(hashtextextended($1,0))",[user]);let result:any={};
  if(action==='account.save'){
-  const id=d.id||randomUUID();if(d.id){const a=await account(c,user,id);if(a.version!==d.version)conflict();await c.query('UPDATE accounts SET name=$1,kind=$2,version=version+1 WHERE id=$3 AND user_id=$4',[d.name,d.kind,id,user])}else{await c.query('INSERT INTO accounts(id,user_id,name,kind) VALUES($1,$2,$3,$4)',[id,user,d.name,d.kind]);if(d.initialBudget){const b=d.initialBudget,cat=randomUUID();await c.query('INSERT INTO categories(id,user_id,name,photo) VALUES($1,$2,$3,$4)',[cat,user,b.name,b.photo]);await c.query("INSERT INTO budgets(id,user_id,category_id,account_id,month,name,account_name,amount,photo) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9)",[randomUUID(),user,cat,id,b.month+'-01',b.name,d.name,b.amount,b.photo])}}result={id};
+  const id=d.id||randomUUID();if(d.id){const a=await account(c,user,id);if(a.version!==d.version)conflict();await c.query('UPDATE accounts SET name=$1,kind=$2,version=version+1 WHERE id=$3 AND user_id=$4',[d.name,d.kind,id,user])}else{await c.query('INSERT INTO accounts(id,user_id,name,kind) VALUES($1,$2,$3,$4)',[id,user,d.name,d.kind]);if(d.initialBudget){const b=d.initialBudget,cat=randomUUID();await c.query('INSERT INTO categories(id,user_id,name,photo) VALUES($1,$2,$3,$4)',[cat,user,b.name,mascotFamily(b.photo)]);await c.query("INSERT INTO budgets(id,user_id,category_id,account_id,month,name,account_name,amount,photo) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9)",[randomUUID(),user,cat,id,b.month+'-01',b.name,d.name,b.amount,b.photo])}}result={id};
  }
  if(action==='account.archive'){
   const a=await account(c,user,d.id);if(a.version!==d.version)conflict();if(d.archived){const q=await c.query('SELECT 1 FROM budgets WHERE account_id=$1 AND user_id=$2 AND archived=false AND month >= date_trunc(\'month\',now() AT TIME ZONE \'Asia/Jakarta\')::date LIMIT 1',[d.id,user]);if(q.rowCount)throw new AppError('Arsipkan atau pindahkan pos budget bulan ini dan bulan berikutnya terlebih dahulu.');}await c.query('UPDATE accounts SET archived=$1,version=version+1 WHERE id=$2 AND user_id=$3',[d.archived,d.id,user]);
@@ -25,7 +25,7 @@ export async function mutate(user:string,action:string,d:any){const c=await pool
  }
  if(action==='budget.save'){
   const a=await account(c,user,d.accountId);if(a.archived)throw new AppError('Pilih rekening yang masih aktif.');let old=d.id?await budget(c,user,d.id):null;if(old&&old.version!==d.version)conflict();if(old&&old.month!==d.month)throw new AppError('Bulan budget tidak dapat dipindahkan.');let cat=old?.category_id||randomUUID(),id=d.id||randomUUID();
-  if(!old)await c.query('INSERT INTO categories(id,user_id,name,photo) VALUES($1,$2,$3,$4)',[cat,user,d.name,d.photo]);
+  if(!old)await c.query('INSERT INTO categories(id,user_id,name,photo) VALUES($1,$2,$3,$4)',[cat,user,d.name,mascotFamily(d.photo)]);
   if(old)await c.query('UPDATE budgets SET name=$1,account_id=$2,account_name=$3,amount=$4,cadence=$5,guide=$6,photo=$7,version=version+1 WHERE id=$8 AND user_id=$9',[d.name,d.accountId,a.name,d.amount,d.cadence,d.cadence==='monthly'?0:d.guide,d.photo,id,user]);
   else await c.query('INSERT INTO budgets(id,user_id,category_id,account_id,month,name,account_name,amount,cadence,guide,photo) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)',[id,user,cat,d.accountId,d.month+'-01',d.name,a.name,d.amount,d.cadence,d.cadence==='monthly'?0:d.guide,d.photo]);result={id};
  }

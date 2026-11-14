@@ -18,7 +18,7 @@ Aplikasi budget bulanan untuk penggunaan harian di HP. Next.js 16, React, Neon P
 - Pengeluaran melewati budget diperbolehkan dan ditampilkan negatif.
 - Salin bulan lalu hanya menyalin pos dan nominal, tanpa transaksi atau sisa. Bulan dengan budget tidak ditimpa.
 - Rename rekening dan pengubahan pos tidak menulis ulang snapshot bulan lain. Pengeluaran menyimpan rekening pembayaran saat dicatat.
-- Pos dengan transaksi diarsipkan; pos kosong dapat dihapus. Rekening hanya dapat diarsipkan setelah pos aktif bulan ini dan berikutnya dipindah/diarsipkan.
+- Pos dengan transaksi diarsipkan; pos kosong dapat dihapus. Rekening tanpa riwayat dapat dihapus; rekening dengan riwayat hanya dapat diarsipkan setelah pos aktif bulan ini dan berikutnya dipindah/diarsipkan.
 - Semua query dibatasi user_id dari sesi server; ID dari klien tidak menentukan identitas pengguna.
 - Pencatatan transaksi menggunakan UUID idempotensi untuk retry. Perubahan dan penghapusan menggunakan version untuk menolak pembaruan stale.
 - Akun baru kosong. Tidak ada data contoh yang dimasukkan otomatis.
@@ -38,7 +38,7 @@ Environment: `DATABASE_URL` (pooled), `NEON_AUTH_BASE_URL`, `NEON_AUTH_COOKIE_SE
 
 Migrasi terversi: `migrations/001_initial.sql`. Uji pada branch development Neon terlebih dahulu; terapkan pada production setelah lolos pemeriksaan. Jangan menjalankan migrasi otomatis dalam request pengguna atau setiap build.
 
-Neon project: `super-dawn-26017100` di `aws-ap-southeast-1`. Branch `production` dan `development` terpisah. Vercel project: `rantauboz` pada scope `santana-menas-projects`. Nilai rahasia hanya berada di environment hosting.
+Neon project: `super-dawn-26017100` di `aws-ap-southeast-1`. Branch `production` dan `development` terpisah. Vercel project: `rantauboz` pada scope `santana-menas-projects`. Nilai rahasia hanya berada di environment hosting. Deployment production dibuat dari commit GitHub menggunakan project Vercel ini. Koneksi auto-deploy setiap push belum terpasang; gunakan Vercel Settings > Git > Connect Git Repository untuk menyambungkan repo ini ke proyek yang sama. Jangan membuat proyek kedua.
 
 ## Verifikasi dan operasional
 
@@ -47,3 +47,11 @@ Uji sign-up, sign-in, sign-out, restore sesi, akun kedua, CRUD, retry pencatatan
 Reset password memakai pengiriman email Neon. SMTP bawaan adalah untuk pengembangan; konfigurasi custom SMTP pada Neon diperlukan sebelum mengandalkan email reset sebagai alur production. Tanpa verifikasi email, email signup belum membuktikan kepemilikan alamat tersebut.
 
 Aset fotografi generatif orisinal disimpan lokal. Font Open Sans beserta lisensinya berada di `public/assets`.
+
+## Hasil verifikasi rilis
+
+- Build production dan unit test lulus.
+- Pengujian UI memakai API mock: buat rekening+budget, catat cepat, field tanggal 16 px tanpa overflow, ubah budget dari rekening, edit/hapus pengeluaran, dan layout 360/390/768/1440.
+- Integrasi pada Vercel production dan Neon sungguhan: signup, login/logout, password salah, sesi, data akun baru kosong, simpan rekening+budget, transaksi idempotent, stale-version ditolak, over-budget, isolasi bulan, salin tanpa carryover, isolasi antar-user, dan hapus transaksi. Transaksi uji dibersihkan.
+- Proteksi login Vercel dipertahankan untuk seluruh deployment sesuai preferensi pemilik. Login aplikasi adalah lapisan terpisah.
+- Draft pengeluaran disimpan sementara per akun dan bulan di sessionStorage; draft dibuang setelah berhasil tersimpan.

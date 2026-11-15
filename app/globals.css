@@ -150,3 +150,9 @@ body:has(.finance-header){--boz-paper:#ffffff;--boz-blue:#193f9b;--boz-blue-deep
 :where(body:has(.finance-header)) .recent-transactions .transaction-day-header .recent-day-count{font-size:11px;color:var(--boz-muted);white-space:nowrap}
 .recent-transactions .transaction{padding-top:13px;padding-bottom:13px}
 .recent-transactions .transaction-day .transaction:last-child{border-bottom:0;padding-bottom:4px}
+
+/* Outgoing money has one consistent, readable red treatment. */
+body:has(.finance-header){--boz-expense:#b42332;--boz-expense-on-blue:#ffd2ca}
+body:has(.finance-header) .expense-amount{color:var(--boz-expense)}
+body:has(.finance-header) .summary:first-child .expense-amount,body:has(.finance-header) .transaction-day-header>.expense-amount{color:var(--boz-expense-on-blue)}
+body:has(.finance-header) .amount-input input,body:has(.finance-header) .amount-input>span{color:var(--boz-expense)}

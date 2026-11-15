@@ -82,3 +82,7 @@ Aset fotografi generatif orisinal disimpan lokal. Font Open Sans beserta lisensi
 - Profil/foto terlihat selama berteman, termasuk ketika berbagi budget dimatikan. Ini dijelaskan di pilihan berbagi. Putus koneksi menutup akses ke foto juga. Daftar teman hanya mengirim versi foto, bukan bytes atau user_id teman.
 - Pengaturan berbagi dan putus koneksi ada di menu Atur pada profil. Budget tetap mengikuti izin yang dipilih pemilik; progres tidak menampilkan nominal. Pembaruan berkala tidak mengembalikan tab portofolio ke awal.
 - Verifikasi tambahan: 14 unit test, query foto dan route pada PostgreSQL lokal (PGlite), serta pengujian profil/foto/fallback dan seluruh mode berbagi pada 360–1440 px. Foto profil pribadi tetap memakai endpoint pemilik yang terpisah.
+
+## Maskot tanpa latar
+
+Pose Boz di dashboard memakai tiga atlas transparan WebP (`boz-cutouts-1.webp` hingga `3.webp`), empat pose per atlas. `BozImage` memilih pose tanpa mengubah nilai maskot yang disimpan dalam budget. Latar dan bingkai putih pada gambar dihapus; kartu dan batas pilihan tetap berfungsi. Seluruh atlas sekitar 211 KiB dan memakai alpha asli, termasuk di atas kartu berwarna. Aset marketing dan ikon aplikasi tetap terpisah.

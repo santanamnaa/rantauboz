@@ -176,22 +176,22 @@ body:has(.finance-header) .amount-input input,body:has(.finance-header) .amount-
 
 .community-profile-link{text-decoration:none}.community-profile-link strong{color:#172b4d}.community-profile-link small{display:block;color:#505c72;margin-top:5px}.community-profile-link .setting-action{color:#193f9b}
 
-/* Home: neutral surfaces, meaningful color, and compact actions. */
+/* Home: royal blue surfaces, Boz fur, and clear financial states. */
 body:has(.finance-header){--boz-rule:#dce2ed}
 body:has(.finance-header) .header-help{background:#fff;color:var(--boz-blue);border-color:#c7d2e8}
 body:has(.finance-header) .home-dashboard .panel{background:#fff;border-color:#dce2ed}
-body:has(.finance-header) .home-summary .summary{background:#f3f5fa;border:1px solid #dce2ed;color:var(--boz-ink);padding:16px;border-radius:16px;min-width:0}
+body:has(.finance-header) .home-summary .summary{background:#fff;border:1.5px solid #193f9b;color:var(--boz-ink);padding:16px;border-radius:18px 18px 18px 6px;min-width:0}
 body:has(.finance-header) .home-summary .summary span{color:#505c72;font-size:13px}
 body:has(.finance-header) .home-summary .summary strong{font-size:24px;color:var(--boz-ink);overflow-wrap:anywhere}
 body:has(.finance-header) .home-summary .summary .expense-amount{color:var(--boz-expense)}
 .home-summary .summary small{display:block;margin-top:8px;font-size:12px;line-height:1.5;color:#505c72}
 .home-dashboard .quick-grid{grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
-body:has(.finance-header) .home-dashboard .quick{display:flex;flex-direction:row;align-items:center;justify-content:flex-start;text-align:left;gap:8px;background:#fff;border:1px solid #dce2ed;border-radius:16px;padding:12px;min-height:88px}
+body:has(.finance-header) .home-dashboard .quick{display:flex;flex-direction:row;align-items:center;justify-content:flex-start;text-align:left;gap:8px;background:#193f9b;border:1px solid #193f9b;border-radius:17px 17px 17px 6px;padding:12px;min-height:88px;position:relative;isolation:isolate;color:#fff}
 .home-dashboard .quick>div{min-width:0}
 .home-dashboard .quick .thumb{width:42px;height:42px}
 .home-dashboard .quick strong{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden;font-size:14px;line-height:1.4}
 .home-dashboard .quick small{font-size:12px;margin-top:4px}
-body:has(.finance-header) .home-dashboard .quick:hover{border-color:var(--boz-blue);background:#f3f5fa}
+body:has(.finance-header) .home-dashboard .quick:hover{border-color:#12317d;background:#12317d}
 .home-columns{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.2fr);gap:20px;align-items:start}
 .home-budget-row{display:flex;align-items:center;gap:10px;width:100%;text-align:left;padding:16px 0;background:transparent;color:var(--boz-ink);border-bottom:1px solid #dce2ed}
 .home-budget-row:last-child{border:0;padding-bottom:0}
@@ -204,7 +204,39 @@ body:has(.finance-header) .home-dashboard .quick:hover{border-color:var(--boz-bl
 .budget-warning-text{color:#946200}
 body:has(.finance-header) .home-budget-row .budget-warning-track .track:not(.over) i{background:#946200}
 body:has(.finance-header) .home-budget-row .budget-exhausted-track .track i,body:has(.finance-header) .home-budget-row .track.over i{background:var(--boz-expense)}
-body:has(.finance-header) .home-friends{margin:0 0 24px;background:#f3f5fa;border-color:#dce2ed;padding:12px 14px;min-height:72px}
+body:has(.finance-header) .home-friends{margin:0 0 24px;background:#12317d;border-color:#12317d;padding:12px 14px;min-height:72px;color:#fff}
 .home-friends>img{width:42px;height:42px}
 @media(max-width:700px){.home-dashboard .quick-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.home-columns{grid-template-columns:minmax(0,1fr);gap:0}.home-summary{gap:10px}.home-summary .summary small{font-size:11px}.home-budget-top{flex-direction:row;justify-content:space-between;align-items:baseline;gap:10px}.home-budget-top strong{overflow-wrap:anywhere}.home-budget-top>span{flex-shrink:0;font-size:13px}}
 @media(max-width:360px){.home-budget-top{flex-direction:column;gap:4px}body:has(.finance-header) .home-summary .summary{padding:13px}body:has(.finance-header) .home-summary .summary strong{font-size:22px}}
+
+/* Boz's blue fur is part of the shape, never placed over financial data. */
+body:has(.home-dashboard) .finance-header{position:relative;background:#193f9b;border:0;border-radius:24px 24px 26px 9px;padding:25px 16px 19px;margin-bottom:30px;isolation:isolate}
+body:has(.home-dashboard) .finance-header:after{content:'';position:absolute;left:18px;right:18px;bottom:-12px;height:23px;background:#193f9b;pointer-events:none;mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='32' viewBox='0 0 160 32'%3E%3Cpath d='M0 32V16C4 4 14 2 20 15C22-4 39-4 42 14C50-1 62 1 66 17C71 3 84 2 91 16C99-4 112 0 115 16C124 0 139 0 143 17C150 7 157 10 160 16V32Z'/%3E%3C/svg%3E") repeat-x center/115px 23px;transform:rotate(180deg);z-index:-1}
+body:has(.home-dashboard) .header-summary>span,body:has(.home-dashboard) .summary-visibility small{color:#e1e9ff}
+body:has(.home-dashboard) .summary-visibility{color:#f5f1df}
+body:has(.home-dashboard) .period-switch input{color:#fff;background:transparent;color-scheme:dark}
+body:has(.home-dashboard) .period-switch button{background:#fff;border-radius:14px;width:44px;height:44px;justify-self:center}
+body:has(.home-dashboard) .header-help{background:#fff;color:#193f9b;border-color:#fff}
+body:has(.home-dashboard) .header-avatar{border:2px solid #fff}
+body:has(.finance-header) .home-summary .summary:first-child{background:#12317d;border-color:#12317d;position:relative;isolation:isolate}
+body:has(.finance-header) .home-summary .summary:first-child>span,.home-summary .summary:first-child>small{color:#e1e9ff}
+body:has(.finance-header) .home-summary .summary:first-child>strong{color:#f5f1df}
+body:has(.finance-header) .home-summary .summary:first-child>.expense-amount{color:#ffd2ca}
+.home-summary .summary:first-child:before,.home-dashboard .quick:before{content:'';position:absolute;right:14px;top:-6px;width:39px;height:15px;pointer-events:none;background:radial-gradient(ellipse 7px 10px at 7px 11px,currentColor 95%,transparent 100%),radial-gradient(ellipse 7px 12px at 20px 11px,currentColor 95%,transparent 100%),radial-gradient(ellipse 6px 9px at 32px 11px,currentColor 95%,transparent 100%);color:#12317d;transform:rotate(5deg);z-index:-1}
+.home-dashboard .quick:before{color:#193f9b;right:9px}
+body:has(.finance-header) .home-dashboard .quick:nth-child(even){background:#12317d;border-color:#12317d}
+.home-dashboard .quick:nth-child(even):before{color:#12317d}
+body:has(.finance-header) .home-dashboard .quick strong{color:#fff}
+body:has(.finance-header) .home-dashboard .quick small{color:#dce6ff}
+.home-dashboard .quick-grid{row-gap:17px}
+.home-dashboard .quick .thumb{width:46px;height:46px;filter:drop-shadow(0 3px 4px #001b4c35)}
+body:has(.finance-header) .home-dashboard .panel{border:1.5px solid #193f9b;border-radius:20px 20px 20px 7px;padding-top:0}
+.home-dashboard .home-columns .panel>.section-head{background:#193f9b;position:relative;margin:0 -23px 12px;padding:8px 16px;border-radius:18px 18px 0 0;min-height:58px;isolation:isolate}
+body:has(.finance-header) .home-dashboard .home-columns .section-head h2{color:#fff}
+body:has(.finance-header) .home-dashboard .home-columns .section-head>.subtle{color:#fff}
+.home-dashboard .home-columns .panel>.section-head:before{content:'';position:absolute;right:80px;top:-9px;width:50px;height:19px;background:radial-gradient(ellipse 9px 14px at 9px 15px,#193f9b 95%,transparent 100%),radial-gradient(ellipse 9px 16px at 26px 15px,#193f9b 95%,transparent 100%),radial-gradient(ellipse 8px 12px at 42px 15px,#193f9b 95%,transparent 100%);pointer-events:none;z-index:-1;transform:rotate(5deg)}
+.home-dashboard .home-columns{row-gap:12px}
+body:has(.finance-header) .home-friends small{color:#dce6ff}
+.home-friends>span>strong,.home-friends>b{color:#fff}
+body:has(.home-dashboard) :is(.finance-header,.home-summary .summary:first-child,.home-quick .quick,.home-friends) :focus-visible,body:has(.home-dashboard) .quick:focus-visible,body:has(.home-dashboard) .home-friends:focus-visible{outline-color:#f2bc45}
+@media(max-width:700px){body:has(.home-dashboard) .finance-header{padding:22px 12px 17px}.home-dashboard .home-columns .panel>.section-head{margin-left:-16px;margin-right:-16px;padding-left:16px;padding-right:12px}.home-dashboard .home-columns .panel{padding-left:16px;padding-right:16px}.home-dashboard .home-quick{margin-bottom:28px}}

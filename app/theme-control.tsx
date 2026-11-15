@@ -15,7 +15,7 @@ function applyTheme(preference:ThemePreference){
   root.dataset.themePreference=preference;
   root.style.colorScheme=dark?'dark':'light';
   document.querySelectorAll<HTMLMetaElement>('meta[name="theme-color"]').forEach(meta=>{
-    const color=dark?'#0b1425':'#ffffff';
+    const color=dark?'#101010':'#ffffff';
     if(meta.content!==color)meta.content=color;
     if(meta.hasAttribute('media'))meta.removeAttribute('media');
   });

@@ -37,7 +37,7 @@ npm run build
 
 Environment: `DATABASE_URL` (pooled), `NEON_AUTH_BASE_URL`, `NEON_AUTH_COOKIE_SECRET` (minimal 32 karakter), `APP_URL`.
 
-Migrasi terversi dijalankan berurutan: `migrations/001_initial.sql`, `002_profile_photos.sql`, dan `003_friends.sql`. Uji pada branch development Neon terlebih dahulu; terapkan pada production setelah lolos pemeriksaan. Jangan menjalankan migrasi otomatis dalam request pengguna atau setiap build.
+Migrasi terversi dijalankan berurutan: `migrations/001_initial.sql`, `002_profile_photos.sql`, `003_friends.sql`, dan `004_community.sql`. Uji pada branch development Neon terlebih dahulu; terapkan pada production setelah lolos pemeriksaan. Jangan menjalankan migrasi otomatis dalam request pengguna atau setiap build.
 
 Neon project: `super-dawn-26017100` di `aws-ap-southeast-1`. Branch `production` dan `development` terpisah. Vercel project: `rantauboz` pada scope `santana-menas-projects`. Nilai rahasia hanya berada di environment hosting. Deployment production dibuat dari commit GitHub menggunakan project Vercel ini. Koneksi auto-deploy setiap push belum terpasang; gunakan Vercel Settings > Git > Connect Git Repository untuk menyambungkan repo ini ke proyek yang sama. Jangan membuat proyek kedua.
 
@@ -86,3 +86,12 @@ Aset fotografi generatif orisinal disimpan lokal. Font Open Sans beserta lisensi
 ## Maskot tanpa latar
 
 Pose Boz di dashboard memakai tiga atlas transparan WebP (`boz-cutouts-1.webp` hingga `3.webp`), empat pose per atlas. `BozImage` memilih pose tanpa mengubah nilai maskot yang disimpan dalam budget. Latar dan bingkai putih pada gambar dihapus; kartu dan batas pilihan tetap berfungsi. Seluruh atlas sekitar 211 KiB dan memakai alpha asli, termasuk di atas kartu berwarna. Aset marketing dan ikon aplikasi tetap terpisah.
+
+## Ikut rawat Rantau Boz
+
+- `/ikut-rawat` menjelaskan cerita pembuat, dukungan sukarela untuk biaya aplikasi **dan waktu/penghasilan pembuatnya**, kontribusi kode/desain, serta masukan pengguna. Tautan ada di Profil dan footer marketing, tanpa popup donasi.
+- Perkenalan disimpan melalui `POST /api/contributions` tanpa mewajibkan akun. Email wajib untuk calon kontributor; masukan boleh tanpa email. Ada persetujuan baca/balas, validasi, pembatasan body, honeypot, batas percobaan berbasis hash IP, dan idempotensi UUID. Pesan gagal tetap ada di formulir.
+- Kotak masuk `/kelola-kontribusi` dan API baca/ubah hanya untuk user_id yang ditunjuk di `contribution_managers`; tidak ada klaim akses otomatis berdasarkan email yang diketik. Pengelola bisa memfilter, memuat halaman berikutnya, memperbarui daftar, dan menandai tindak lanjut. Kontak dibuka manual lewat email; aplikasi tidak mengirim pesan otomatis.
+- Dukungan mulai dalam keadaan belum dibuka. Pengelola membuat akun penerima sendiri di Saweria/Trakteer, menyalin tautan profilnya ke pengaturan, lalu mengaktifkannya. URL dibatasi ke profil HTTPS pada kedua layanan tersebut. Nominal, QRIS, dan pencairan berlangsung di layanan penerima. Tidak ada QR atau penerima pembayaran contoh yang dipublikasikan.
+- Route dukungan boleh dibaca tanpa login aplikasi. Route pengelola memeriksa sesi dan peran sendiri agar login dapat kembali ke tujuan yang benar. Proteksi login Vercel untuk seluruh deployment tetap dipertahankan.
+- Verifikasi: 16 unit test; 9 pemeriksaan service/API pada PostgreSQL lokal (PGlite); UI formulir, kegagalan/retry, masukan tanpa email, pengelolaan status dan tautan, serta ukuran 360/390/768/1440. Migrasi diuji pada development sebelum production. Data perkenalan tidak ditampilkan publik atau dipakai otomatis sebagai testimoni.

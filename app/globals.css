@@ -240,3 +240,15 @@ body:has(.finance-header) .home-friends small{color:#dce6ff}
 .home-friends>span>strong,.home-friends>b{color:#fff}
 body:has(.home-dashboard) :is(.finance-header,.home-summary .summary:first-child,.home-quick .quick,.home-friends) :focus-visible,body:has(.home-dashboard) .quick:focus-visible,body:has(.home-dashboard) .home-friends:focus-visible{outline-color:#f2bc45}
 @media(max-width:700px){body:has(.home-dashboard) .finance-header{padding:22px 12px 17px}.home-dashboard .home-columns .panel>.section-head{margin-left:-16px;margin-right:-16px;padding-left:16px;padding-right:12px}.home-dashboard .home-columns .panel{padding-left:16px;padding-right:16px}.home-dashboard .home-quick{margin-bottom:28px}}
+
+/* Compact shortcuts keep frequent transaction history close at hand. */
+.home-dashboard .home-quick .quick-grid{grid-template-columns:repeat(8,minmax(0,1fr));gap:12px 8px}
+body:has(.finance-header) .home-dashboard .home-quick .quick{flex-direction:column;justify-content:flex-start;gap:4px;min-height:86px;padding:8px 5px;text-align:center;border-radius:13px 13px 13px 5px}
+.home-dashboard .home-quick .quick .thumb{width:30px;height:30px}
+.home-dashboard .home-quick .quick>div{width:100%}
+.home-dashboard .home-quick .quick strong{display:block;font-size:12px;line-height:1.3;min-height:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.home-dashboard .home-quick .quick small{font-size:11px;line-height:1.3;margin-top:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.home-dashboard .home-quick .quick:before{width:29px;height:12px;right:7px;top:-4px;background:radial-gradient(ellipse 5px 8px at 5px 9px,currentColor 95%,transparent 100%),radial-gradient(ellipse 5px 9px at 15px 9px,currentColor 95%,transparent 100%),radial-gradient(ellipse 5px 7px at 24px 9px,currentColor 95%,transparent 100%)}
+.home-columns{grid-template-columns:minmax(0,1.2fr) minmax(0,1fr)}
+@media(max-width:900px){.home-dashboard .home-quick .quick-grid{grid-template-columns:repeat(4,minmax(0,1fr))}}
+@media(max-width:700px){.home-columns{grid-template-columns:minmax(0,1fr)}.home-dashboard .home-quick{margin-bottom:24px}}

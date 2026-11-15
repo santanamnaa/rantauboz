@@ -1,4 +1,5 @@
 import type {Metadata} from 'next';
 import Marketing from '../marketing';
-export const metadata:Metadata={title:'Rantau Boz — Teman atur uang anak rantau',description:'Ikuti cerita Boz. Pisahkan rekening, atur budget bulanan, dan catat pengeluaran supaya jelas ke mana uangmu pergi.'};
+import {pageMetadata} from '../../lib/site-metadata';
+export const metadata:Metadata=pageMetadata('story','/cerita');
 export default function StoryPage(){return <Marketing/>}

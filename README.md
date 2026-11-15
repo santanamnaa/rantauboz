@@ -66,3 +66,11 @@ Aset fotografi generatif orisinal disimpan lokal. Font Open Sans beserta lisensi
 - Tidak ada hak edit atas data teman. Versi pengaturan mencegah overwrite; penerimaan undangan memakai row lock; koneksi bisa dihentikan oleh kedua pihak. Reconnect memerlukan undangan dan persetujuan baru.
 - Percobaan kode dan pembuatan undangan dibatasi di database. POST memeriksa origin dan content type; respons memakai no-store. UI memuat ulang saat kembali aktif dan setiap 60 detik; izin selalu dicek lagi oleh server.
 - Verifikasi fitur: 11 unit test; 12 pemeriksaan service/API dengan sesi uji dan database PostgreSQL lokal (PGlite); SQL pelaporan diuji di Neon development; alur UI diuji dengan mock pada 360–1440 px. Tes undangan tanpa sesi juga memeriksa redirect login, pelestarian kode ke signup, dan API 401 pada server Next lokal. Proteksi Vercel tetap aktif; fitur ini tidak memperluas akses deployment.
+
+## Pratinjau tautan dan undangan
+
+- Judul, deskripsi, canonical URL, Open Graph, dan Twitter card dibedakan untuk aplikasi, cerita Boz, login, daftar, dan undangan Teman Rantau. Favicon dan ikon Home Screen memakai wajah Boz; nama instalasi adalah Rantau Boz.
+- Gambar 1200×630 di `/share/{app,story,invite,login,signup}.png` memakai aset lokal. Route ini hanya merender konten merek yang tetap, tanpa membaca undangan atau data finansial. Akses publik di middleware aplikasi tidak mengubah proteksi deployment Vercel.
+- Tautan `/?teman=CODE` dan halaman auth yang membawa kode memakai metadata undangan yang sama. Halaman auth/undangan tidak diindeks. Token reset tidak masuk canonical atau metadata sosial.
+- Bagikan undangan memakai Web Share API, dengan fallback salin pesan dan tautan. Pesan mengikuti izin pada saat undangan dibuat; tidak berisi nominal, rekening, atau transaksi. Salin kode dan salin tautan tetap tersedia.
+- Pratinjau aplikasi chat memerlukan crawler mencapai metadata dan gambar. Login Vercel tetap aktif sesuai pilihan pemilik, sehingga platform eksternal bisa menampilkan login Vercel alih-alih kartu aplikasi.

@@ -141,3 +141,12 @@ body:has(.finance-header){--boz-paper:#ffffff;--boz-blue:#193f9b;--boz-blue-deep
 :where(body:has(.finance-header)) .mascot-card.selected{background:var(--boz-tint);border-color:var(--boz-blue)}
 :where(body:has(.finance-header)) .mascot-selected,:where(body:has(.finance-header)) .mascot-card.selected .mascot-name,:where(body:has(.finance-header)) .profile-stats strong,:where(body:has(.finance-header)) .guide-info strong{color:var(--boz-blue)}
 :where(body:has(.finance-header)) .profile-stats{background:#eeebdb;border-color:var(--boz-rule)}
+
+/* A little of Boz's blue fur marks each day in the home feed. */
+.recent-transactions .transaction-day+.transaction-day{margin-top:17px}
+:where(body:has(.finance-header)) .recent-transactions .transaction-day-header{background:transparent;border:0;border-radius:0;padding:7px 0 10px;gap:12px}
+:where(body:has(.finance-header)) .recent-transactions .transaction-day-header h3{position:relative;display:inline-flex;align-items:center;min-height:32px;padding:6px 12px;background:var(--boz-blue);color:#fff;border-radius:12px 12px 12px 4px;font-size:12px;line-height:20px;isolation:isolate}
+.recent-transactions .transaction-day-header h3:before{content:'';position:absolute;right:8px;top:-5px;width:34px;height:12px;z-index:-1;background:radial-gradient(ellipse 6px 9px at 6px 10px,var(--boz-blue) 95%,transparent 100%),radial-gradient(ellipse 6px 10px at 17px 10px,var(--boz-blue) 95%,transparent 100%),radial-gradient(ellipse 6px 8px at 28px 10px,var(--boz-blue) 95%,transparent 100%);transform:rotate(5deg)}
+:where(body:has(.finance-header)) .recent-transactions .transaction-day-header .recent-day-count{font-size:11px;color:var(--boz-muted);white-space:nowrap}
+.recent-transactions .transaction{padding-top:13px;padding-bottom:13px}
+.recent-transactions .transaction-day .transaction:last-child{border-bottom:0;padding-bottom:4px}

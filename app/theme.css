@@ -5,13 +5,13 @@
   --theme-line:#414141;
   --theme-text:#f2f2f2;
   --theme-muted:#bdbdbd;
-  --theme-link:#548aff;
+  --theme-link:#a1c1ff;
   --theme-on-brand:#f3f6ff;
   --theme-brand:#1b43a0;
   --theme-brand-deep:#202020;
-  --theme-expense:#e34b4b;
+  --theme-expense:#ff8f9d;
   --theme-warning:#f3c970;
-  --theme-accent:#548aff;
+  --theme-accent:#7ca9ff;
   --theme-chart-rest:#363636;
   --theme-shadow:#000000;
   --theme-shadow-a8:color-mix(in srgb, var(--theme-shadow) 8%, transparent);
@@ -81,7 +81,3 @@ html[data-theme="dark"] :is(.community-coffee,.community-form-card,.community-ch
 html[data-theme="dark"] :is(.community-coffee,.community-form-card):before{background:radial-gradient(ellipse 11px 20px at 11px 21px,var(--theme-surface) 95%,transparent 100%),radial-gradient(ellipse 11px 24px at 32px 21px,var(--theme-surface) 95%,transparent 100%),radial-gradient(ellipse 11px 17px at 54px 21px,var(--theme-surface) 95%,transparent 100%)}
 html[data-theme="dark"] :is(.community-choices>a,.community-choices>button):before{background:radial-gradient(ellipse 7px 11px at 7px 11px,var(--theme-surface) 95%,transparent 100%),radial-gradient(ellipse 7px 13px at 21px 11px,var(--theme-surface) 95%,transparent 100%),radial-gradient(ellipse 7px 10px at 35px 11px,var(--theme-surface) 95%,transparent 100%)}
 
-html[data-theme="dark"] body:has(.finance-header) .transaction-day-header>.expense-amount{background:var(--theme-surface);padding:5px 8px;border-radius:7px}
-html[data-theme="dark"] .budget-warning-text{color:var(--theme-warning)}
-html[data-theme="dark"] body .home-budget-row .budget-warning-track .track:not(.over) i{background:var(--theme-warning)}
-html[data-theme="dark"] .r-ledger-next span{color:var(--theme-on-brand)}

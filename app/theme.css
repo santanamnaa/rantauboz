@@ -1,0 +1,74 @@
+:root[data-theme="dark"]{
+  --theme-page:#0b1425;
+  --theme-surface:#142139;
+  --theme-raised:#1c2e4b;
+  --theme-line:#3d5578;
+  --theme-text:#edf2fc;
+  --theme-muted:#b5c5de;
+  --theme-link:#a1c1ff;
+  --theme-on-brand:#f3f6ff;
+  --theme-brand:#1b43a0;
+  --theme-brand-deep:#102958;
+  --theme-expense:#ff8f9d;
+  --theme-warning:#f3c970;
+  --theme-accent:#7ca9ff;
+  --theme-chart-rest:#2b436b;
+  --theme-shadow:#00091a;
+  --theme-shadow-a8:color-mix(in srgb, var(--theme-shadow) 8%, transparent);
+  --theme-line-a13:color-mix(in srgb, var(--theme-line) 13%, transparent);
+  --theme-surface-a94:color-mix(in srgb, var(--theme-surface) 94%, transparent);
+  --theme-shadow-a11:color-mix(in srgb, var(--theme-shadow) 11%, transparent);
+  --theme-shadow-a3:color-mix(in srgb, var(--theme-shadow) 3%, transparent);
+  --theme-brand-deep-a40:color-mix(in srgb, var(--theme-brand-deep) 40%, transparent);
+  --theme-shadow-a25:color-mix(in srgb, var(--theme-shadow) 25%, transparent);
+  --theme-raised-a96:color-mix(in srgb, var(--theme-raised) 96%, transparent);
+  --theme-line-a25:color-mix(in srgb, var(--theme-line) 25%, transparent);
+  --theme-shadow-a19:color-mix(in srgb, var(--theme-shadow) 19%, transparent);
+  --theme-shadow-a4:color-mix(in srgb, var(--theme-shadow) 4%, transparent);
+  --theme-shadow-a5:color-mix(in srgb, var(--theme-shadow) 5%, transparent);
+  --theme-line-a14:color-mix(in srgb, var(--theme-line) 14%, transparent);
+  --theme-shadow-a7:color-mix(in srgb, var(--theme-shadow) 7%, transparent);
+  --theme-shadow-a15:color-mix(in srgb, var(--theme-shadow) 15%, transparent);
+  --theme-shadow-a2:color-mix(in srgb, var(--theme-shadow) 2%, transparent);
+  --theme-accent-a3:color-mix(in srgb, var(--theme-accent) 3%, transparent);
+  --theme-line-a46:color-mix(in srgb, var(--theme-line) 46%, transparent);
+  --theme-line-a23:color-mix(in srgb, var(--theme-line) 23%, transparent);
+  --theme-raised-a90:color-mix(in srgb, var(--theme-raised) 90%, transparent);
+  --theme-raised-a93:color-mix(in srgb, var(--theme-raised) 93%, transparent);
+  --theme-link-a31:color-mix(in srgb, var(--theme-link) 31%, transparent);
+  --theme-shadow-a9:color-mix(in srgb, var(--theme-shadow) 9%, transparent);
+  --theme-raised-a67:color-mix(in srgb, var(--theme-raised) 67%, transparent);
+  --theme-line-a50:color-mix(in srgb, var(--theme-line) 50%, transparent);
+  --theme-line-a27:color-mix(in srgb, var(--theme-line) 27%, transparent);
+  --theme-link-a23:color-mix(in srgb, var(--theme-link) 23%, transparent);
+}
+:root[data-theme="dark"]{color-scheme:dark}
+:root[data-theme="light"]{color-scheme:light}
+html[data-theme="dark"] body{background:var(--theme-page);color:var(--theme-text)}
+.theme-toolbar{position:relative;z-index:2;background:var(--theme-page,#fff);border-bottom:1px solid var(--theme-line,#dce2ed);padding-top:env(safe-area-inset-top,0px)}
+.theme-toolbar-inner{max-width:1120px;margin:auto;padding:5px 16px;display:flex;align-items:center;justify-content:flex-end;gap:9px;min-height:50px}
+.theme-toolbar label{font-size:12px;color:var(--theme-muted,#505c72);font-weight:400}
+.theme-toolbar select{display:block;width:auto;max-width:170px;min-height:40px;padding:7px 30px 7px 10px;border:1px solid var(--theme-line,#b5c2e3);border-radius:10px;background:var(--theme-surface,#fff);color:var(--theme-text,#193f9b);font-size:13px;line-height:24px;cursor:pointer}
+.theme-toolbar select:focus-visible{outline:3px solid var(--theme-accent,#193f9b);outline-offset:2px}
+html[data-theme="dark"] .r-marketing{--paper:var(--theme-page);--ink:var(--theme-text)}
+html[data-theme="dark"] :is(.r-hero,.r-footer,.r-entry-world){background:var(--theme-brand-deep)}
+html[data-theme="dark"] .community-page{--c-blue:#102750;--c-deep:#0b1830;--c-paper:#f3f6ff;--c-copy:#cad9f4}
+html[data-theme="dark"] body:has(.community-page){background:#102750}
+html[data-theme="dark"] .finance-header .period-switch input{color-scheme:dark}
+html[data-theme="dark"] input::placeholder,html[data-theme="dark"] textarea::placeholder{color:var(--theme-muted);opacity:.85}
+html[data-theme="dark"] :is(.sheet-backdrop){background:#000817b8}
+html[data-theme="dark"] :is(.sheet,.sheet-header,.sheet-footer,.guide-compose){background:var(--theme-surface)}
+html[data-theme="dark"] .sheet-handle span{background:#859cbe}
+html[data-theme="dark"] .r-entry-poster h2>span,html[data-theme="dark"] .r-hero h1 .r-outline{color:transparent}
+html[data-theme="dark"] :is(input,select,textarea){color-scheme:dark}
+.app-status-page{min-height:65svh;max-width:540px;margin:0 auto;display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:18px;padding:36px 24px;color:var(--theme-text,#172b4d)}
+.app-status-page h1{font-size:28px;color:var(--theme-text,#172b4d)}
+.app-status-page p{color:var(--theme-muted,#505c72)}
+.app-status-page img{width:90px;height:90px;object-fit:contain}
+.app-status-page a,.app-status-page button{display:inline-flex;align-items:center;min-height:44px;padding:11px 18px;border-radius:12px;background:var(--theme-brand,#193f9b);color:#fff;text-decoration:none}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+
+html[data-theme="dark"] .summary>span{color:var(--theme-muted)}
+html[data-theme="dark"] .budget-tile[data-tone]{--tile-accent:var(--theme-accent)}
+html[data-theme="dark"] .budget-tile.exhausted .budget-tile-balance>strong{color:var(--theme-expense)}
+html[data-theme="dark"] .community-fur-disc{fill:#234386}

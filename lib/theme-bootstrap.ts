@@ -1,0 +1,3 @@
+// Run in <head> before the body paints; storage may be unavailable in private contexts.
+export const themeBootstrap=`(function(){var p='system';try{var s=localStorage.getItem('rantauboz-theme');if(s==='light'||s==='dark')p=s}catch(e){}var d=p==='dark'||(p==='system'&&window.matchMedia('(prefers-color-scheme: dark)').matches);document.documentElement.dataset.theme=d?'dark':'light';document.documentElement.dataset.themePreference=p;document.documentElement.style.colorScheme=d?'dark':'light';document.querySelectorAll('meta[name="theme-color"]').forEach(function(m){m.content=d?'#0b1425':'#ffffff';m.removeAttribute('media')})})();`;
+

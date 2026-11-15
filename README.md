@@ -95,3 +95,12 @@ Pose Boz di dashboard memakai tiga atlas transparan WebP (`boz-cutouts-1.webp` h
 - Dukungan mulai dalam keadaan belum dibuka. Pengelola membuat akun penerima sendiri di Saweria/Trakteer, menyalin tautan profilnya ke pengaturan, lalu mengaktifkannya. URL dibatasi ke profil HTTPS pada kedua layanan tersebut. Nominal, QRIS, dan pencairan berlangsung di layanan penerima. Tidak ada QR atau penerima pembayaran contoh yang dipublikasikan.
 - Route dukungan boleh dibaca tanpa login aplikasi. Route pengelola memeriksa sesi dan peran sendiri agar login dapat kembali ke tujuan yang benar. Proteksi login Vercel untuk seluruh deployment tetap dipertahankan.
 - Verifikasi: 16 unit test; 9 pemeriksaan service/API pada PostgreSQL lokal (PGlite); UI formulir, kegagalan/retry, masukan tanpa email, pengelolaan status dan tautan, serta ukuran 360/390/768/1440. Migrasi diuji pada development sebelum production. Data perkenalan tidak ditampilkan publik atau dipakai otomatis sebagai testimoni.
+
+
+## Tema terang dan gelap
+
+- Pilihan Tampilan tersedia pada toolbar bersama di semua halaman aplikasi: Terang, Gelap, dan Ikuti perangkat. Pilihan disimpan lokal pada browser/perangkat melalui `rantauboz-theme`; tidak disimpan sebagai preferensi akun di database.
+- Bootstrap di head menerapkan pilihan sebelum body ditampilkan. Mode perangkat mengikuti perubahan `prefers-color-scheme`; pilihan manual mengesampingkan perangkat. Perubahan localStorage tersinkron pada tab lain. Jika storage diblokir, kontrol tetap dapat dipakai pada halaman aktif.
+- `app/theme.css` mendefinisikan token palet gelap berdasarkan fungsi: halaman, permukaan, garis, teks, biru merek, pengeluaran, dan peringatan. CSS dashboard, marketing, autentikasi, serta kontribusi memakai token dengan fallback warna terang. Aset Boz transparan dan identitas biru tetap dipertahankan.
+- Tema mencakup modal, input tanggal, grafik, profil/foto, semua mode portofolio teman, kotak masuk pengelola, halaman akses ditolak, 404, dan fallback error. Login proteksi Vercel serta halaman layanan pembayaran eksternal dikelola penyedia masing-masing. Kartu gambar sosial tetap merupakan aset merek statis.
+- Saat menambah komponen, gunakan token tema dan periksa kedua mode, kontras, input/selected/error, serta layout mobile. Hindari menambah warna hardcoded tanpa fallback tema.

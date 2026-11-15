@@ -14,9 +14,11 @@ async function saveShare(c:PoolClient,id:string,user:string,s:Settings,ids:strin
 export async function listFriends(user:string){const [friends,invites,categories]=await Promise.all([
  pool.query(`SELECT f.id,CASE WHEN f.low_user=$1 THEN f.high_name ELSE f.low_name END AS name,
  jsonb_build_object('mode',s.mode,'fromMonth',to_char(s.from_month,'YYYY-MM'),'categoryIds',s.category_ids,'version',s.version) AS sharing,
- coalesce(p.mode,'off') AS "peerMode"
+ coalesce(p.mode,'off') AS "peerMode", avatar.updated_at AS "avatarVersion",
+ to_char(f.created_at AT TIME ZONE 'Asia/Jakarta','YYYY-MM') AS "connectedMonth"
  FROM friend_connections f JOIN friend_shares s ON s.connection_id=f.id AND s.owner_id=$1
  LEFT JOIN friend_shares p ON p.connection_id=f.id AND p.owner_id=CASE WHEN f.low_user=$1 THEN f.high_user ELSE f.low_user END
+ LEFT JOIN profile_photos avatar ON avatar.user_id=CASE WHEN f.low_user=$1 THEN f.high_user ELSE f.low_user END
  WHERE f.active AND (f.low_user=$1 OR f.high_user=$1) ORDER BY f.created_at DESC`,[user]),
  pool.query(`SELECT id,mode,to_char(from_month,'YYYY-MM') AS "fromMonth",expires_at AS "expiresAt" FROM friend_invites WHERE inviter_id=$1 AND status='pending' AND expires_at>now() ORDER BY created_at DESC`,[user]),
  pool.query('SELECT DISTINCT ON (category_id) category_id AS id,name,photo FROM budgets WHERE user_id=$1 ORDER BY category_id,month DESC,created_at DESC',[user])

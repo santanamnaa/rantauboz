@@ -74,3 +74,11 @@ Aset fotografi generatif orisinal disimpan lokal. Font Open Sans beserta lisensi
 - Tautan `/?teman=CODE` dan halaman auth yang membawa kode memakai metadata undangan yang sama. Halaman auth/undangan tidak diindeks. Token reset tidak masuk canonical atau metadata sosial.
 - Bagikan undangan memakai Web Share API, dengan fallback salin pesan dan tautan. Pesan mengikuti izin pada saat undangan dibuat; tidak berisi nominal, rekening, atau transaksi. Salin kode dan salin tautan tetap tersedia.
 - Pratinjau aplikasi chat memerlukan crawler mencapai metadata dan gambar. Login Vercel tetap aktif sesuai pilihan pemilik, sehingga platform eksternal bisa menampilkan login Vercel alih-alih kartu aplikasi.
+
+## Profil dan portofolio teman
+
+- Pilih teman dari deretan foto untuk membuka profilnya. Portofolio budget dibagi ke Ringkasan, Budget (bila diizinkan), dan Grafik. Tidak ada nilai aset, saldo bank, atau tabungan yang dibuat-buat dari sisa budget.
+- Foto memakai unggahan profil teman, dengan inisial jika belum ada/foto gagal dimuat. `GET /api/friends/[id]/photo` menerima id koneksi, memeriksa sesi dan koneksi aktif dalam query yang sama, lalu mengambil foto milik anggota satunya. Respons private/no-store; tidak ada akses tulis atau endpoint foto publik.
+- Profil/foto terlihat selama berteman, termasuk ketika berbagi budget dimatikan. Ini dijelaskan di pilihan berbagi. Putus koneksi menutup akses ke foto juga. Daftar teman hanya mengirim versi foto, bukan bytes atau user_id teman.
+- Pengaturan berbagi dan putus koneksi ada di menu Atur pada profil. Budget tetap mengikuti izin yang dipilih pemilik; progres tidak menampilkan nominal. Pembaruan berkala tidak mengembalikan tab portofolio ke awal.
+- Verifikasi tambahan: 14 unit test, query foto dan route pada PostgreSQL lokal (PGlite), serta pengujian profil/foto/fallback dan seluruh mode berbagi pada 360–1440 px. Foto profil pribadi tetap memakai endpoint pemilik yang terpisah.

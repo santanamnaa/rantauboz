@@ -104,3 +104,8 @@ Pose Boz di dashboard memakai tiga atlas transparan WebP (`boz-cutouts-1.webp` h
 - `app/theme.css` mendefinisikan token palet gelap berdasarkan fungsi: halaman, permukaan, garis, teks, biru merek, pengeluaran, dan peringatan. CSS dashboard, marketing, autentikasi, serta kontribusi memakai token dengan fallback warna terang. Aset Boz transparan dan identitas biru tetap dipertahankan.
 - Tema mencakup modal, input tanggal, grafik, profil/foto, semua mode portofolio teman, kotak masuk pengelola, halaman akses ditolak, 404, dan fallback error. Login proteksi Vercel serta halaman layanan pembayaran eksternal dikelola penyedia masing-masing. Kartu gambar sosial tetap merupakan aset merek statis.
 - Saat menambah komponen, gunakan token tema dan periksa kedua mode, kontras, input/selected/error, serta layout mobile. Hindari menambah warna hardcoded tanpa fallback tema.
+
+
+## Favicon mengikuti perangkat
+
+Favicon SVG `public/assets/boz-favicon-adaptive.svg` memakai wajah Boz yang sudah ada dan bingkai dengan `prefers-color-scheme`. SVG menyematkan PNG secara langsung sehingga tidak membutuhkan request gambar eksternal. Mode mengikuti perangkat/browser, terpisah dari pilihan tema manual aplikasi. PNG/ICO lama tetap menjadi fallback. Ikon instalasi Home Screen dari manifest/apple-touch-icon tidak diubah; tampilannya dikelola sistem dan launcher perangkat.

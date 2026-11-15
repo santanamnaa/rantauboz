@@ -9,7 +9,7 @@
   --theme-on-brand:#f3f6ff;
   --theme-brand:#1b43a0;
   --theme-brand-deep:#202020;
-  --theme-expense:#ff8f9d;
+  --theme-expense:#ff4d4f;
   --theme-warning:#f3c970;
   --theme-accent:#7ca9ff;
   --theme-chart-rest:#363636;
@@ -80,3 +80,7 @@ html[data-theme="dark"] .home-dashboard .home-columns .panel>.section-head:befor
 html[data-theme="dark"] :is(.community-coffee,.community-form-card,.community-choices>a,.community-choices>button){background:var(--theme-surface)}
 html[data-theme="dark"] :is(.community-coffee,.community-form-card):before{background:radial-gradient(ellipse 11px 20px at 11px 21px,var(--theme-surface) 95%,transparent 100%),radial-gradient(ellipse 11px 24px at 32px 21px,var(--theme-surface) 95%,transparent 100%),radial-gradient(ellipse 11px 17px at 54px 21px,var(--theme-surface) 95%,transparent 100%)}
 html[data-theme="dark"] :is(.community-choices>a,.community-choices>button):before{background:radial-gradient(ellipse 7px 11px at 7px 11px,var(--theme-surface) 95%,transparent 100%),radial-gradient(ellipse 7px 13px at 21px 11px,var(--theme-surface) 95%,transparent 100%),radial-gradient(ellipse 7px 10px at 35px 11px,var(--theme-surface) 95%,transparent 100%)}
+
+html[data-theme="dark"] body:has(.finance-header) .transaction-day-header>.expense-amount{background:var(--theme-surface);padding:5px 8px;border-radius:7px}
+html[data-theme="dark"] .budget-warning-text{color:var(--theme-warning)}
+html[data-theme="dark"] body .home-budget-row .budget-warning-track .track:not(.over) i{background:var(--theme-warning)}

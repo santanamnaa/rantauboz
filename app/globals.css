@@ -34,3 +34,110 @@
 .budget-history{margin-top:25px;padding-top:22px;border-top:1px solid #d6e1e9}.budget-history-heading h3{font-size:17px;font-weight:600;color:#2b506b;line-height:1.4;letter-spacing:-.3px}.budget-history-heading p{font-size:12px;color:#627e92;margin-top:5px;line-height:1.7}.budget-history-list{margin-top:20px}.budget-history-day+.budget-history-day{margin-top:22px}.budget-history-date{display:flex;align-items:center;justify-content:space-between;gap:12px;border-bottom:1px solid #dbe4ec;padding:0 0 9px}.budget-history-date h4{margin:0;font-size:12px;font-weight:600;color:#5c798f;line-height:1.5}.budget-history-date>span{font-size:11px;color:#6c8495;white-space:nowrap}.budget-history-row{display:flex;align-items:center;justify-content:space-between;gap:14px;width:100%;min-height:66px;padding:13px 0;background:transparent;border:0;border-bottom:1px solid #e6edf2;text-align:left;border-radius:0;color:#2c4e68}.budget-history-description{display:block;min-width:0;flex:1}.budget-history-description>strong{display:block;font-size:14px;font-weight:600;line-height:1.6;color:#2a4d69;overflow-wrap:anywhere}.budget-history-description>small{display:block;font-size:12px;line-height:1.5;color:#678195;margin-top:4px}.budget-history-amount{display:block;text-align:right;flex-shrink:0}.budget-history-amount>strong{display:block;font-size:14px;line-height:1.5;letter-spacing:-.25px;font-weight:600;color:#285679}.budget-history-amount>small{display:block;font-size:11px;line-height:1.5;color:#386e94;margin-top:5px}.budget-history-row:hover .budget-history-description>strong{color:#1d6595}.budget-history-empty{font-size:14px;line-height:1.8;color:#6a8394;background:#f2f6f9;border-radius:11px;padding:15px;margin-top:17px}@media(max-width:700px){.budget-history{margin-top:23px;padding-top:20px}.budget-history-heading h3{font-size:16px}.budget-history-row{gap:10px;min-height:65px}.budget-history-description>strong{font-size:14px}.budget-history-amount>strong{font-size:14px}}
 .budget-history-description>small{overflow-wrap:anywhere}
 .transaction-groups{margin-top:5px}.transaction-day+.transaction-day{margin-top:25px}.transaction-day-header{display:flex;justify-content:space-between;align-items:center;gap:14px;padding:10px 12px;background:#eef3f7;border:1px solid #dbe5ed;border-radius:9px}.transaction-day-header h3{font-size:14px;color:#345e7d;letter-spacing:-.25px;font-weight:600;line-height:1.5}.transaction-day-header div>span{font-size:11px;color:#698396;display:block;line-height:1.5;margin-top:2px}.transaction-day-header>strong{font-size:15px;color:#275a80;font-weight:600;white-space:nowrap;letter-spacing:-.3px}.transaction-day .transaction:last-child{padding-bottom:12px}.account-detail-period{display:flex;flex-direction:column;gap:7px;padding-bottom:18px;border-bottom:1px solid #d7e2eb}.account-detail-period>span{font-size:13px;line-height:1.6;color:#6a8395}.account-detail-period>strong{font-size:19px;color:#2e5877;font-weight:600}.account-detail-totals{padding:20px 0;border-bottom:1px solid #d7e2eb}.account-detail-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:21px}.account-detail-actions>.subtle{grid-column:1/-1;justify-self:center;font-size:13px;min-height:40px}.account-detail-actions>.primary,.account-detail-actions>.secondary{padding:11px 12px;font-size:13px;min-width:0}.account-detail .budget-history{margin-top:21px}@media(max-width:700px){.transaction-day+.transaction-day{margin-top:22px}.transaction-day-header{padding:10px}.transaction-day-header h3{font-size:13px}.transaction-day-header>strong{font-size:14px}.transaction-day-header div>span{font-size:10px}.account-detail-period>strong{font-size:18px}.account-detail-totals strong{font-size:19px}.account-detail-actions{gap:9px}.account-detail-actions>.primary,.account-detail-actions>.secondary{font-size:12px;padding:10px 8px}.account-actions button{font-size:13px}}
+
+/* Boz brand palette: warm paper, royal blue, and clear financial states. */
+body:has(.finance-header){--boz-paper:#f5f1df;--boz-blue:#193f9b;--boz-blue-deep:#12317d;--boz-ink:#172b4d;--boz-muted:#505c72;--boz-rule:#d8d3bf;--boz-white:#fffef9;--boz-tint:#e6ebf8;--app-bg:var(--boz-paper);--app-ink:var(--boz-ink);--app-primary:var(--boz-blue);--app-tint:var(--boz-tint);--app-rule:var(--boz-rule);background:var(--boz-paper);color:var(--boz-ink)}
+:where(body:has(.finance-header)) .shell{color:var(--boz-ink)}
+:where(body:has(.finance-header)) .finance-header{border-color:var(--boz-rule)}
+:where(body:has(.finance-header)) .header-summary>span,:where(body:has(.finance-header)) .summary-visibility small{color:var(--boz-muted)}
+:where(body:has(.finance-header)) .summary-visibility,:where(body:has(.finance-header)) .period-switch input{color:var(--boz-blue)}
+:where(body:has(.finance-header)) .header-avatar{background:var(--boz-tint);border-color:#b5c2e3}
+:where(body:has(.finance-header)) .header-avatar .avatar-fallback,:where(body:has(.finance-header)) .avatar-initials{background:var(--boz-tint);color:var(--boz-blue)}
+:where(body:has(.finance-header)) .header-help{background:var(--boz-blue);color:var(--boz-paper);border-color:var(--boz-blue)}
+:where(body:has(.finance-header)) .header-help:hover{background:var(--boz-blue-deep)}
+:where(body:has(.finance-header)) h1,:where(body:has(.finance-header)) h2,:where(body:has(.finance-header)) h3,:where(body:has(.finance-header)) h4,:where(body:has(.finance-header)) .row-top strong,:where(body:has(.finance-header)) .quick strong,:where(body:has(.finance-header)) .profile-details h2,:where(body:has(.finance-header)) .profile-setting strong,:where(body:has(.finance-header)) .account-card h2,:where(body:has(.finance-header)) .account-card h3{color:var(--boz-ink)}
+:where(body:has(.finance-header)) p,:where(body:has(.finance-header)) label,:where(body:has(.finance-header)) .transaction-meta,:where(body:has(.finance-header)) .row-body small,:where(body:has(.finance-header)) .quick small,:where(body:has(.finance-header)) .profile-details p,:where(body:has(.finance-header)) .profile-setting small,:where(body:has(.finance-header)) .account-kind,:where(body:has(.finance-header)) .account-pos,:where(body:has(.finance-header)) .row-note,:where(body:has(.finance-header)) .chart-info,:where(body:has(.finance-header)) .chart-col span,:where(body:has(.finance-header)) .total,:where(body:has(.finance-header)) .budget-toolbar .total{color:var(--boz-muted)}
+:where(body:has(.finance-header)) .primary{background:var(--boz-blue);color:var(--boz-paper);border-color:var(--boz-blue);box-shadow:none}
+:where(body:has(.finance-header)) .primary:hover{background:var(--boz-blue-deep)}
+:where(body:has(.finance-header)) .secondary{background:var(--boz-tint);border-color:#b5c2e3;color:var(--boz-blue)}
+:where(body:has(.finance-header)) .secondary:hover{background:#d8e1f5}
+:where(body:has(.finance-header)) .subtle,:where(body:has(.finance-header)) a,:where(body:has(.finance-header)) .guide-topic-toggle{color:var(--boz-blue)}
+:where(body:has(.finance-header)) .subtle:hover{background:var(--boz-tint)}
+:where(body:has(.finance-header)) button:focus-visible,:where(body:has(.finance-header)) a:focus-visible{outline-color:var(--boz-blue)}
+:where(body:has(.finance-header)) input,:where(body:has(.finance-header)) select,:where(body:has(.finance-header)) textarea{background:var(--boz-white);color:var(--boz-ink);border-color:#bcbfae;outline-color:var(--boz-blue)}
+:where(body:has(.finance-header)) input::placeholder,:where(body:has(.finance-header)) textarea::placeholder{color:#687082}
+:where(body:has(.finance-header)) input[type=checkbox]{accent-color:var(--boz-blue)}
+:where(body:has(.finance-header)) .panel,:where(body:has(.finance-header)) .account-card,:where(body:has(.finance-header)) .profile-summary,:where(body:has(.finance-header)) .profile-settings{background:var(--boz-white);border-color:var(--boz-rule)}
+:where(body:has(.finance-header)) .summary{background:var(--boz-blue);border-color:var(--boz-blue)}
+:where(body:has(.finance-header)) .summary span{color:#e1e8fa}
+:where(body:has(.finance-header)) .summary strong{color:var(--boz-paper)}
+:where(body:has(.finance-header)) .summary:nth-child(2){background:#e9dca6;border-color:#cbbb80}
+:where(body:has(.finance-header)) .summary:nth-child(2) span{color:#514725}
+:where(body:has(.finance-header)) .summary:nth-child(2) strong{color:var(--boz-ink)}
+:where(body:has(.finance-header)) .quick{background:var(--boz-white);border-color:var(--boz-rule);color:var(--boz-ink)}
+:where(body:has(.finance-header)) .quick[data-tone=food],:where(body:has(.finance-header)) .quick[data-tone=leisure]{background:#f3e8c4;border-color:#d4c388}
+:where(body:has(.finance-header)) .quick[data-tone=transport],:where(body:has(.finance-header)) .quick[data-tone=home]{background:#e5ebf9;border-color:#b9c6e8}
+:where(body:has(.finance-header)) .quick[data-tone=shopping]{background:#f3e5d5;border-color:#dbc0a0}
+:where(body:has(.finance-header)) .quick[data-tone=glass]{background:var(--boz-white);border-color:var(--boz-rule)}
+:where(body:has(.finance-header)) .quick:hover{border-color:var(--boz-blue)}
+:where(body:has(.finance-header)) .track{background:#dfe4ee}
+:where(body:has(.finance-header)) .track i,:where(body:has(.finance-header)) .chart-bar,:where(body:has(.finance-header)) .chart-col.high .chart-bar{background:var(--boz-blue)}
+:where(body:has(.finance-header)) .track.over i{background:#a73534}
+:where(body:has(.finance-header)) .negative,:where(body:has(.finance-header)) .danger,:where(body:has(.finance-header)) .budget-detail-warning{color:#a12f2d}
+:where(body:has(.finance-header)) .budget-row,:where(body:has(.finance-header)) .transaction,:where(body:has(.finance-header)) .profile-setting{border-color:#e1ddcd}
+:where(body:has(.finance-header)) .segmented{background:#e6e2d0}
+:where(body:has(.finance-header)) .segmented button{color:var(--boz-muted)}
+:where(body:has(.finance-header)) .segmented button.active,:where(body:has(.finance-header)) .segmented .active{background:var(--boz-blue);color:var(--boz-paper)}
+:where(body:has(.finance-header)) .dock::before{background:var(--boz-white)}
+:where(body:has(.finance-header)) .dock::after{background:var(--boz-paper)}
+:where(body:has(.finance-header)) .dock button:not(.record){color:var(--boz-muted)}
+:where(body:has(.finance-header)) .dock button.active:not(.record){background:var(--boz-tint);color:var(--boz-blue)}
+:where(body:has(.finance-header)) .dock button.record{background:var(--boz-blue);color:var(--boz-paper);border-color:var(--boz-blue-deep);box-shadow:0 4px 12px #193f9b26,inset 0 1px 0 #ffffff26}
+:where(body:has(.finance-header)) .dock button.record:hover{background:var(--boz-blue-deep)}
+:where(body:has(.finance-header)) .sheet,:where(body:has(.finance-header)) .sheet-header,:where(body:has(.finance-header)) .sheet-footer{background:var(--boz-white);border-color:var(--boz-rule);color:var(--boz-ink)}
+:where(body:has(.finance-header)) .sheet-header h2{color:var(--boz-ink)}
+:where(body:has(.finance-header)) .sheet-handle span{background:#878f9f}
+:where(body:has(.finance-header)) .sheet-backdrop{background:#172b4d66}
+:where(body:has(.finance-header)) .choice{background:var(--boz-white);border-color:var(--boz-rule);color:var(--boz-ink)}
+:where(body:has(.finance-header)) .choice.selected{background:var(--boz-tint);border-color:var(--boz-blue)}
+:where(body:has(.finance-header)) .choice small,:where(body:has(.finance-header)) .form-hint,:where(body:has(.finance-header)) .amount-label,:where(body:has(.finance-header)) .choose-label{color:var(--boz-muted)}
+:where(body:has(.finance-header)) .source-note{background:#eeebdb;border-color:var(--boz-rule);color:var(--boz-muted)}
+:where(body:has(.finance-header)) .source-note b{color:var(--boz-blue)}
+:where(body:has(.finance-header)) .quick-amounts button{background:var(--boz-tint);color:var(--boz-blue);border-color:#b5c2e3}
+:where(body:has(.finance-header)) .budget-tile{--tile-accent:var(--boz-blue);--tile-wash:var(--boz-tint);background:var(--boz-white);border-color:var(--boz-rule);color:var(--boz-ink)}
+:where(body:has(.finance-header)) .budget-tile[data-tone=food],:where(body:has(.finance-header)) .budget-tile[data-tone=leisure]{--tile-accent:#8b6518;--tile-wash:#f1e5bc}
+:where(body:has(.finance-header)) .budget-tile[data-tone=transport],:where(body:has(.finance-header)) .budget-tile[data-tone=travel],:where(body:has(.finance-header)) .budget-tile[data-tone=home],:where(body:has(.finance-header)) .budget-tile[data-tone=bills]{--tile-accent:#193f9b;--tile-wash:#e5ebfa}
+:where(body:has(.finance-header)) .budget-tile[data-tone=shopping],:where(body:has(.finance-header)) .budget-tile[data-tone=gifts]{--tile-accent:#9b522a;--tile-wash:#f5e6d8}
+:where(body:has(.finance-header)) .budget-tile[data-tone=health]{--tile-accent:#23675c;--tile-wash:#dfede6}
+:where(body:has(.finance-header)) .budget-tile[data-tone=education],:where(body:has(.finance-header)) .budget-tile[data-tone=savings]{--tile-accent:#354f88;--tile-wash:#e6eafa}
+:where(body:has(.finance-header)) .budget-tile:before{opacity:1}
+:where(body:has(.finance-header)) .budget-tile:hover{border-color:var(--boz-blue)}
+:where(body:has(.finance-header)) .budget-tile-name{color:var(--boz-ink)}
+:where(body:has(.finance-header)) .budget-tile-bank,:where(body:has(.finance-header)) .budget-tile-top>span,:where(body:has(.finance-header)) .budget-tile-balance>small,:where(body:has(.finance-header)) .budget-tile-limit{color:var(--boz-muted)}
+:where(body:has(.finance-header)) .budget-tile-balance>strong,:where(body:has(.finance-header)) .budget-toolbar .total strong{color:var(--boz-blue)}
+:where(body:has(.finance-header)) .budget-tile-mascot{border-color:#dedbcf}
+:where(body:has(.finance-header)) .budget-tile.archived{background:#eeecdf;border-color:var(--boz-rule)}
+:where(body:has(.finance-header)) .budget-tile.overspent .budget-tile-balance>strong,:where(body:has(.finance-header)) .budget-tile.overspent .budget-tile-top>span{color:#a12f2d}
+:where(body:has(.finance-header)) .budget-tile.overspent>.track i{background:#a12f2d}
+:where(body:has(.finance-header)) .budget-tile.exhausted .budget-tile-balance>strong{color:#75570c}
+:where(body:has(.finance-header)) .budget-archive{border-color:var(--boz-rule)}
+:where(body:has(.finance-header)) .budget-archive>summary{color:var(--boz-muted)}
+:where(body:has(.finance-header)) .budget-archive>summary>span{background:#e5dfc7;color:var(--boz-ink)}
+:where(body:has(.finance-header)) .budget-detail-identity,:where(body:has(.finance-header)) .budget-detail-totals,:where(body:has(.finance-header)) .account-detail-period,:where(body:has(.finance-header)) .account-detail-totals,:where(body:has(.finance-header)) .budget-history{border-color:var(--boz-rule)}
+:where(body:has(.finance-header)) .budget-detail-mascot{background:var(--boz-tint)}
+:where(body:has(.finance-header)) .budget-detail-identity strong,:where(body:has(.finance-header)) .budget-history-heading h3,:where(body:has(.finance-header)) .budget-history-description>strong,:where(body:has(.finance-header)) .account-detail-period>strong{color:var(--boz-ink)}
+:where(body:has(.finance-header)) .budget-detail-identity p,:where(body:has(.finance-header)) .budget-detail-totals span,:where(body:has(.finance-header)) .budget-detail-guide>span,:where(body:has(.finance-header)) .budget-detail-guide small,:where(body:has(.finance-header)) .budget-history-heading p,:where(body:has(.finance-header)) .budget-history-date h4,:where(body:has(.finance-header)) .budget-history-description>small,:where(body:has(.finance-header)) .account-detail-period>span,:where(body:has(.finance-header)) .remaining-label{color:var(--boz-muted)}
+:where(body:has(.finance-header)) .budget-detail .budget-remaining,:where(body:has(.finance-header)) .budget-detail-totals strong,:where(body:has(.finance-header)) .budget-detail-guide>strong,:where(body:has(.finance-header)) .budget-history-amount>strong,:where(body:has(.finance-header)) .budget-history-amount>small{color:var(--boz-blue)}
+:where(body:has(.finance-header)) .budget-detail-guide{background:var(--boz-tint);border-color:#b5c2e3}
+:where(body:has(.finance-header)) .budget-detail-guide p{color:var(--boz-blue-deep)}
+:where(body:has(.finance-header)) .budget-history-date,:where(body:has(.finance-header)) .budget-history-row{border-color:#e1ddcd}
+:where(body:has(.finance-header)) .budget-history-date>span{color:var(--boz-blue)}
+:where(body:has(.finance-header)) .budget-history-empty{background:#eeebdb;color:var(--boz-muted)}
+:where(body:has(.finance-header)) .transaction-day-header{background:var(--boz-blue);border-color:var(--boz-blue)}
+:where(body:has(.finance-header)) .transaction-day-header h3,:where(body:has(.finance-header)) .transaction-day-header>strong{color:var(--boz-paper)}
+:where(body:has(.finance-header)) .transaction-day-header div>span{color:#e1e8fa}
+:where(body:has(.finance-header)) .tx-amount,:where(body:has(.finance-header)) .account-card b{color:var(--boz-blue)}
+
+:where(body:has(.finance-header)) .guide-intro strong,:where(body:has(.finance-header)) .mascot-name{color:var(--boz-ink)}
+:where(body:has(.finance-header)) .guide-intro p,:where(body:has(.finance-header)) .mascot-help,:where(body:has(.finance-header)) .mascot-note,:where(body:has(.finance-header)) .mascot-purpose,:where(body:has(.finance-header)) .mascot-picker legend,:where(body:has(.finance-header)) .profile-stats span,:where(body:has(.finance-header)) .guide-info{color:var(--boz-muted)}
+:where(body:has(.finance-header)) .guide-message{background:#eeebdb;border-color:var(--boz-rule)}
+:where(body:has(.finance-header)) .guide-message p{color:var(--boz-ink)}
+:where(body:has(.finance-header)) .guide-message.user{background:var(--boz-blue);border-color:var(--boz-blue)}
+:where(body:has(.finance-header)) .guide-message.user p{color:var(--boz-paper)}
+:where(body:has(.finance-header)) .guide-link,:where(body:has(.finance-header)) .guide-topics button{background:var(--boz-white);border-color:#b5c2e3;color:var(--boz-blue)}
+:where(body:has(.finance-header)) .sheet .guide-compose{background:var(--boz-white)}
+:where(body:has(.finance-header)) .mascot-card{background:var(--boz-white);border-color:var(--boz-rule)}
+:where(body:has(.finance-header)) .mascot-card:hover{background:#eeebdb;border-color:#a6b5da}
+:where(body:has(.finance-header)) .mascot-card.selected{background:var(--boz-tint);border-color:var(--boz-blue)}
+:where(body:has(.finance-header)) .mascot-selected,:where(body:has(.finance-header)) .mascot-card.selected .mascot-name,:where(body:has(.finance-header)) .profile-stats strong,:where(body:has(.finance-header)) .guide-info strong{color:var(--boz-blue)}
+:where(body:has(.finance-header)) .profile-stats{background:#eeebdb;border-color:var(--boz-rule)}

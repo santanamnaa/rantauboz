@@ -1,15 +1,17 @@
 import {randomUUID} from 'node:crypto';
+import {monthlyTrackingSql} from './monthly-tracking.mjs';
 import type {PoolClient} from 'pg';
 import {pool} from './db';
 import {previousMonth,mascotFamily} from './validation.mjs';
 export class AppError extends Error{constructor(message:string,public status=400){super(message)}}
 function conflict(){throw new AppError('Data sudah berubah. Muat ulang lalu coba lagi.',409)}
 export async function getData(user:string,month:string){
- const [accounts,budgets,expenses]=await Promise.all([
+ const [accounts,budgets,expenses,monthlyTracking]=await Promise.all([
   pool.query('SELECT id,name,kind,archived,version FROM accounts WHERE user_id=$1 ORDER BY archived,name',[user]),
   pool.query("SELECT b.id,b.category_id AS \"categoryId\",to_char(b.month,'YYYY-MM') AS month,b.name,b.account_id AS \"accountId\",b.account_name AS \"accountName\",b.amount::float8,b.cadence,b.guide::float8,b.photo,b.archived,b.version,a.archived AS \"accountArchived\" FROM budgets b JOIN accounts a ON a.id=b.account_id AND a.user_id=b.user_id WHERE b.user_id=$1 AND b.month=$2::date ORDER BY b.created_at,b.id",[user,month+'-01']),
-  pool.query('SELECT id,budget_id AS "budgetId",account_id AS "accountId",account_name AS "accountName",amount::float8,to_char(date,\'YYYY-MM-DD\') AS date,note,version FROM expenses WHERE user_id=$1 AND date >= $2::date AND date < ($2::date + interval \'1 month\') ORDER BY date DESC,created_at DESC',[user,month+'-01'])
- ]);return{accounts:accounts.rows,budgets:budgets.rows,expenses:expenses.rows,month};
+  pool.query('SELECT id,budget_id AS "budgetId",account_id AS "accountId",account_name AS "accountName",amount::float8,to_char(date,\'YYYY-MM-DD\') AS date,note,version FROM expenses WHERE user_id=$1 AND date >= $2::date AND date < ($2::date + interval \'1 month\') ORDER BY date DESC,created_at DESC',[user,month+'-01']),
+  pool.query(monthlyTrackingSql,[user,month+'-01'])
+ ]);return{accounts:accounts.rows,budgets:budgets.rows,expenses:expenses.rows,monthlyTracking:monthlyTracking.rows,month};
 }
 async function account(c:PoolClient,user:string,id:string){const q=await c.query('SELECT id,name,archived,version FROM accounts WHERE id=$1 AND user_id=$2 FOR UPDATE',[id,user]);if(!q.rowCount)throw new AppError('Rekening tidak ditemukan.',404);return q.rows[0]}
 async function budget(c:PoolClient,user:string,id:string){const q=await c.query('SELECT id,category_id,account_id,account_name,amount,archived,version,to_char(month,\'YYYY-MM\') AS month FROM budgets WHERE id=$1 AND user_id=$2 FOR UPDATE',[id,user]);if(!q.rowCount)throw new AppError('Pos budget tidak ditemukan.',404);return q.rows[0]}

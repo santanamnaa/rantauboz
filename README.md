@@ -8,7 +8,8 @@ Aplikasi budget bulanan untuk penggunaan harian di HP. Next.js 16, React, Neon P
 2. Tambah rekening dan opsional langsung buat pos beserta alokasi bulanan.
 3. Tap pos pada Catat cepat, isi nominal, lalu simpan. Tanggal otomatis hari ini; catatan opsional.
 4. Atur budget dari kartu pos atau dari Rekening > Atur budget.
-5. Buka Riwayat > Rekap bulanan untuk laporan dan CSV.
+5. Buka Riwayat > Rekap bulanan untuk laporan dan CSV, atau Grafik bulanan untuk membandingkan 6/12 bulan.
+6. Buka Teman Rantau dari Beranda atau Profil untuk mengundang teman dan mengatur berbagi.
 
 ## Aturan bisnis
 
@@ -36,7 +37,7 @@ npm run build
 
 Environment: `DATABASE_URL` (pooled), `NEON_AUTH_BASE_URL`, `NEON_AUTH_COOKIE_SECRET` (minimal 32 karakter), `APP_URL`.
 
-Migrasi terversi: `migrations/001_initial.sql`. Uji pada branch development Neon terlebih dahulu; terapkan pada production setelah lolos pemeriksaan. Jangan menjalankan migrasi otomatis dalam request pengguna atau setiap build.
+Migrasi terversi dijalankan berurutan: `migrations/001_initial.sql`, `002_profile_photos.sql`, dan `003_friends.sql`. Uji pada branch development Neon terlebih dahulu; terapkan pada production setelah lolos pemeriksaan. Jangan menjalankan migrasi otomatis dalam request pengguna atau setiap build.
 
 Neon project: `super-dawn-26017100` di `aws-ap-southeast-1`. Branch `production` dan `development` terpisah. Vercel project: `rantauboz` pada scope `santana-menas-projects`. Nilai rahasia hanya berada di environment hosting. Deployment production dibuat dari commit GitHub menggunakan project Vercel ini. Koneksi auto-deploy setiap push belum terpasang; gunakan Vercel Settings > Git > Connect Git Repository untuk menyambungkan repo ini ke proyek yang sama. Jangan membuat proyek kedua.
 
@@ -55,3 +56,13 @@ Aset fotografi generatif orisinal disimpan lokal. Font Open Sans beserta lisensi
 - Integrasi pada Vercel production dan Neon sungguhan: signup, login/logout, password salah, sesi, data akun baru kosong, simpan rekening+budget, transaksi idempotent, stale-version ditolak, over-budget, isolasi bulan, salin tanpa carryover, isolasi antar-user, dan hapus transaksi. Transaksi uji dibersihkan.
 - Proteksi login Vercel dipertahankan untuk seluruh deployment sesuai preferensi pemilik. Login aplikasi adalah lapisan terpisah.
 - Draft pengeluaran disimpan sementara per akun dan bulan di sessionStorage; draft dibuang setelah berhasil tersimpan.
+
+## Teman Rantau
+
+- Undangan berupa kode acak sekali pakai dengan hash SHA-256 di database dan masa berlaku 7 hari. Tautan membawa kode melewati login/pendaftaran. Undangan tidak dikirim otomatis.
+- Pemilik memilih izin masing-masing: tidak berbagi, progres tanpa nominal, ringkasan bulanan, atau nominal budget tertentu. Penerima melihat pilihan pengundang dan memilih pengaturan sendiri sebelum menerima.
+- `from_month` membatasi awal riwayat; budget pilihan memakai category_id agar tetap mengikuti bulan berikutnya. Total dan grafik hanya menghitung lingkup yang diizinkan, termasuk arsip.
+- API membaca identitas dari sesi. Query laporan memeriksa koneksi aktif dan izin pemilik dalam satu statement. Progres menghilangkan seluruh field nominal dari respons, bukan sekadar menyembunyikannya di UI. Rekening, email, dan catatan transaksi teman tidak dikirim.
+- Tidak ada hak edit atas data teman. Versi pengaturan mencegah overwrite; penerimaan undangan memakai row lock; koneksi bisa dihentikan oleh kedua pihak. Reconnect memerlukan undangan dan persetujuan baru.
+- Percobaan kode dan pembuatan undangan dibatasi di database. POST memeriksa origin dan content type; respons memakai no-store. UI memuat ulang saat kembali aktif dan setiap 60 detik; izin selalu dicek lagi oleh server.
+- Verifikasi fitur: 11 unit test; 12 pemeriksaan service/API dengan sesi uji dan database PostgreSQL lokal (PGlite); SQL pelaporan diuji di Neon development; alur UI diuji dengan mock pada 360–1440 px. Tes undangan tanpa sesi juga memeriksa redirect login, pelestarian kode ke signup, dan API 401 pada server Next lokal. Proteksi Vercel tetap aktif; fitur ini tidak memperluas akses deployment.

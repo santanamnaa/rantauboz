@@ -180,11 +180,11 @@ body:has(.finance-header) .amount-input input,body:has(.finance-header) .amount-
 body:has(.finance-header){--boz-rule:#dce2ed}
 body:has(.finance-header) .header-help{background:#fff;color:var(--boz-blue);border-color:#c7d2e8}
 body:has(.finance-header) .home-dashboard .panel{background:#fff;border-color:#dce2ed}
-body:has(.finance-header) .home-summary .summary{background:#fff;border:1.5px solid #193f9b;color:var(--boz-ink);padding:16px;border-radius:18px 18px 18px 6px;min-width:0}
-body:has(.finance-header) .home-summary .summary span{color:#505c72;font-size:13px}
-body:has(.finance-header) .home-summary .summary strong{font-size:24px;color:var(--boz-ink);overflow-wrap:anywhere}
+body:has(.finance-header) .home-summary .summary{background:#fff;border:1.5px solid #193f9b;color:var(--boz-ink);padding:10px 12px;border-radius:14px 14px 14px 5px;min-width:0}
+body:has(.finance-header) .home-summary .summary span{color:#505c72;font-size:12px;line-height:1.4;display:block}
+body:has(.finance-header) .home-summary .summary strong{font-size:21px;line-height:1.25;margin-top:4px;color:var(--boz-ink);overflow-wrap:anywhere}
 body:has(.finance-header) .home-summary .summary .expense-amount{color:var(--boz-expense)}
-.home-summary .summary small{display:block;margin-top:8px;font-size:12px;line-height:1.5;color:#505c72}
+.home-summary .summary small{display:block;margin-top:4px;font-size:11px;line-height:1.4;color:#505c72}
 .home-dashboard .quick-grid{grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
 body:has(.finance-header) .home-dashboard .quick{display:flex;flex-direction:row;align-items:center;justify-content:flex-start;text-align:left;gap:8px;background:#193f9b;border:1px solid #193f9b;border-radius:17px 17px 17px 6px;padding:12px;min-height:88px;position:relative;isolation:isolate;color:#fff}
 .home-dashboard .quick>div{min-width:0}
@@ -207,7 +207,7 @@ body:has(.finance-header) .home-budget-row .budget-exhausted-track .track i,body
 body:has(.finance-header) .home-friends{margin:0 0 24px;background:#12317d;border-color:#12317d;padding:12px 14px;min-height:72px;color:#fff}
 .home-friends>img{width:42px;height:42px}
 @media(max-width:700px){.home-dashboard .quick-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.home-columns{grid-template-columns:minmax(0,1fr);gap:0}.home-summary{gap:10px}.home-summary .summary small{font-size:11px}.home-budget-top{flex-direction:row;justify-content:space-between;align-items:baseline;gap:10px}.home-budget-top strong{overflow-wrap:anywhere}.home-budget-top>span{flex-shrink:0;font-size:13px}}
-@media(max-width:360px){.home-budget-top{flex-direction:column;gap:4px}body:has(.finance-header) .home-summary .summary{padding:13px}body:has(.finance-header) .home-summary .summary strong{font-size:22px}}
+@media(max-width:360px){.home-budget-top{flex-direction:column;gap:4px}body:has(.finance-header) .home-summary .summary{padding:9px 10px}body:has(.finance-header) .home-summary .summary strong{font-size:20px}}
 
 /* Boz's blue fur is part of the shape, never placed over financial data. */
 body:has(.home-dashboard) .finance-header{position:relative;background:#193f9b;border:0;border-radius:24px 24px 26px 9px;padding:25px 16px 19px;margin-bottom:30px;isolation:isolate}

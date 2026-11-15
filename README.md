@@ -108,4 +108,6 @@ Pose Boz di dashboard memakai tiga atlas transparan WebP (`boz-cutouts-1.webp` h
 
 ## Favicon mengikuti perangkat
 
-Favicon SVG `public/assets/boz-favicon-adaptive.svg` memakai wajah Boz yang sudah ada dan bingkai dengan `prefers-color-scheme`. SVG menyematkan PNG secara langsung sehingga tidak membutuhkan request gambar eksternal. Mode mengikuti perangkat/browser, terpisah dari pilihan tema manual aplikasi. PNG/ICO lama tetap menjadi fallback. Ikon instalasi Home Screen dari manifest/apple-touch-icon tidak diubah; tampilannya dikelola sistem dan launcher perangkat.
+Favicon SVG `public/assets/boz-favicon-adaptive.svg` memakai wajah Boz yang memegang koin Rp dan bingkai dengan `prefers-color-scheme`. SVG menyematkan PNG secara langsung sehingga tidak membutuhkan request gambar eksternal. Mode mengikuti perangkat/browser, terpisah dari pilihan tema manual aplikasi. PNG/ICO lama tetap menjadi fallback. Ikon instalasi Home Screen dari manifest/apple-touch-icon tidak diubah; tampilannya dikelola sistem dan launcher perangkat.
+
+Aset ikon uang berada pada `boz-money-{16,32,180,192,512}.png`. ICO memuat ukuran 16/32/48. PNG Apple/Home Screen memakai latar krem tetap, sedangkan favicon SVG memakai wajah transparan dan bingkai adaptif. Versi URL ikon dibedakan untuk pembaruan cache.

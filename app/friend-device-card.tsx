@@ -25,6 +25,8 @@ export default function FriendDeviceCard({id,name,sheet}:{id:string;name:string;
  async function submit(e:FormEvent){e.preventDefault();setFormError('');try{if(!shareLocation&&!shareBattery)throw new Error('Pilih lokasi atau baterai yang ingin kamu bagikan.');await sharing.start(id,shareLocation,shareBattery);setEditing(false);setRefresh(n=>n+1)}catch(e){setFormError(e instanceof Error?e.message:'Belum tersimpan.')}}
  async function stop(){setFormError('');try{await sharing.stop(id);setEditing(false);setRefresh(n=>n+1)}catch(e){setFormError(e instanceof Error?e.message:'Belum tersimpan.')}}
  const locationFresh=!!loc&&now-Date.parse(loc.observedAt)<=15*60000;
+ const mapLatitude=loc?Math.max(-85,Math.min(85,loc.latitude)):0;
+ const mapUrl=locationFresh?'https://www.openstreetmap.org/export/embed.html?'+new URLSearchParams({bbox:[Math.max(-180,loc!.longitude-.008),Math.max(-85.0511,mapLatitude-.005),Math.min(180,loc!.longitude+.008),Math.min(85.0511,mapLatitude+.005)].join(','),layer:'mapnik',marker:loc!.latitude+','+loc!.longitude}).toString():null;
  const batteryFresh=!!battery&&now-Date.parse(battery.observedAt)<=15*60000;
  const dialog=<form className="device-sharing-form" onSubmit={submit} aria-busy={sharing.busy}>
   <p>Bagikan ke <strong>{name}</strong> selama <strong>1 jam</strong>. Pilih yang boleh dia lihat.</p>
@@ -41,7 +43,7 @@ export default function FriendDeviceCard({id,name,sheet}:{id:string;name:string;
    <div className="device-heading"><BozImage pose="travel"/><div><h2>Lokasi & baterai</h2><p>Dari perangkat {name}</p></div><button className="subtle" onClick={()=>setRefresh(n=>n+1)}>Perbarui</button></div>
    {error?<div className="device-empty" role="status"><p>{error}</p><button className="subtle" onClick={()=>setRefresh(n=>n+1)}>Coba lagi</button></div>:!status?<p className="device-caption" role="status">Memuat data perangkat…</p>:<div className="device-status-grid">
     <div className="device-location"><span>Lokasi terakhir</span>{locationFresh?<>
-     <a className="device-map-link" href={'https://www.openstreetmap.org/?mlat='+loc!.latitude+'&mlon='+loc!.longitude+'#map=16/'+loc!.latitude+'/'+loc!.longitude} target="_blank" rel="noopener noreferrer" referrerPolicy="no-referrer">Buka peta</a>
+     <strong className="device-unavailable">Lokasi dibagikan</strong>
      <small>{sampleLabel(loc!.observedAt,now)}</small>
      {now-Date.parse(loc!.observedAt)>120000&&<small className="device-stale">Data lama, bukan lokasi langsung.</small>}
      <details className="device-location-detail"><summary>Detail lokasi</summary><small>{loc!.latitude.toFixed(5)}, {loc!.longitude.toFixed(5)}<br/>Akurasi sekitar {Math.round(loc!.accuracy)} meter</small></details>
@@ -53,6 +55,7 @@ export default function FriendDeviceCard({id,name,sheet}:{id:string;name:string;
      {now-Date.parse(battery!.observedAt)>120000&&<small className="device-stale">Data lama.</small>}
     </>:<><strong className="device-unavailable">{live&&status.peer.sharingBattery?'Belum tersedia':'Tidak dibagikan'}</strong><small>{live&&status.peer.sharingBattery?'Menunggu data browser teman.':name+' belum berbagi baterai.'}</small></>}</div>
    </div>}
+   {mapUrl&&<div className="device-map"><iframe title={'Peta lokasi terakhir '+name} src={mapUrl} loading="lazy" referrerPolicy="no-referrer" sandbox="allow-scripts allow-same-origin"/><span>Peta lokasi terakhir · OpenStreetMap</span></div>}
    <div className="device-own-sharing"><span>{own?<><strong>Kamu sedang berbagi</strong><small>Sampai {time(status!.own.expiresAt!)}</small></>:<><strong>Data HP kamu</strong><small>Belum dibagikan ke {name}</small></>}</span><button className="secondary" aria-label="Atur yang kubagikan" onClick={open} disabled={!status||sharing.busy}>Atur berbagi</button></div>
    <details className="device-info device-data-note"><summary>Tentang pembaruan data</summary><p>Lokasi dan baterai diperbarui saat aplikasi teman terbuka. Data lebih dari 15 menit disembunyikan. Berbagi budget tidak otomatis membuka data perangkat.</p></details>
   </section>

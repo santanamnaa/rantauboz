@@ -45,7 +45,7 @@ export async function friendAction(user:string,name:string,action:string,d:any){
  if(action==='share.update'){
   await connection(c,user,d.id);const ids=await validSettings(c,user,d.settings);const q=await c.query(`UPDATE friend_shares SET mode=$1,from_month=$2::date,category_ids=$3::uuid[],version=version+1,updated_at=now() WHERE connection_id=$4 AND owner_id=$5 AND version=$6 RETURNING version`,[d.settings.mode,d.settings.fromMonth+'-01',ids,d.id,user,d.version]);if(!q.rowCount)throw new AppError('Pengaturan sudah berubah. Muat ulang lalu coba lagi.',409);
  }
- if(action==='friend.disconnect'){await connection(c,user,d.id);await c.query('UPDATE friend_connections SET active=false WHERE id=$1',[d.id]);await c.query("UPDATE friend_shares SET mode='off',version=version+1,updated_at=now() WHERE connection_id=$1",[d.id])}
+ if(action==='friend.disconnect'){await connection(c,user,d.id);await c.query('UPDATE friend_connections SET active=false WHERE id=$1',[d.id]);await c.query("UPDATE friend_shares SET mode='off',version=version+1,updated_at=now() WHERE connection_id=$1",[d.id]);await c.query('DELETE FROM friend_device_shares WHERE connection_id=$1',[d.id])}
  await c.query('COMMIT');return result;
  }catch(e){await c.query('ROLLBACK');throw e}finally{c.release()}
 }

@@ -37,7 +37,7 @@ npm run build
 
 Environment: `DATABASE_URL` (pooled), `NEON_AUTH_BASE_URL`, `NEON_AUTH_COOKIE_SECRET` (minimal 32 karakter), `APP_URL`.
 
-Migrasi terversi dijalankan berurutan: `migrations/001_initial.sql`, `002_profile_photos.sql`, `003_friends.sql`, dan `004_community.sql`. Uji pada branch development Neon terlebih dahulu; terapkan pada production setelah lolos pemeriksaan. Jangan menjalankan migrasi otomatis dalam request pengguna atau setiap build.
+Migrasi terversi dijalankan berurutan: `migrations/001_initial.sql`, `002_profile_photos.sql`, `003_friends.sql`, `004_community.sql`, dan `005_friend_devices.sql`. Uji pada branch development Neon terlebih dahulu; terapkan pada production setelah lolos pemeriksaan. Jangan menjalankan migrasi otomatis dalam request pengguna atau setiap build.
 
 Neon project: `super-dawn-26017100` di `aws-ap-southeast-1`. Branch `production` dan `development` terpisah. Vercel project: `rantauboz` pada scope `santana-menas-projects`. Nilai rahasia hanya berada di environment hosting. Deployment production dibuat dari commit GitHub menggunakan project Vercel ini. Koneksi auto-deploy setiap push belum terpasang; gunakan Vercel Settings > Git > Connect Git Repository untuk menyambungkan repo ini ke proyek yang sama. Jangan membuat proyek kedua.
 
@@ -111,3 +111,15 @@ Pose Boz di dashboard memakai tiga atlas transparan WebP (`boz-cutouts-1.webp` h
 Favicon SVG `public/assets/boz-favicon-adaptive.svg` memakai wajah Boz yang memegang koin Rp dan bingkai dengan `prefers-color-scheme`. SVG menyematkan PNG secara langsung sehingga tidak membutuhkan request gambar eksternal. Mode mengikuti perangkat/browser, terpisah dari pilihan tema manual aplikasi. PNG/ICO lama tetap menjadi fallback. Ikon instalasi Home Screen dari manifest/apple-touch-icon tidak diubah; tampilannya dikelola sistem dan launcher perangkat.
 
 Aset ikon uang berada pada `boz-money-{16,32,180,192,512}.png`. ICO memuat ukuran 16/32/48. PNG Apple/Home Screen memakai latar krem tetap, sedangkan favicon SVG memakai wajah transparan dan bingkai adaptif. Versi URL ikon dibedakan untuk pembaruan cache.
+
+
+## Lokasi dan baterai teman
+
+- Panel Lokasi & baterai tersedia di profil Teman Rantau. Izin terpisah dari berbagi budget dan selalu nonaktif sampai pemilik memilih data serta menekan Mulai berbagi 1 jam. Tidak ada aktivasi melalui undangan, oleh teman, atau berdasarkan izin budget.
+- Pemilik memilih lokasi dan/atau baterai untuk satu koneksi. Sesi kedaluwarsa satu jam; tiap perpanjangan menghasilkan session UUID baru dan menghapus sampel sebelumnya. Browser hanya mengirim sesi yang dimulai di browser tersebut, dengan pengenal sesi di localStorage tanpa menyimpan koordinat atau baterai lokal. Browser lain pada akun yang sama tidak otomatis mengirim lokasinya.
+- Pengambilan data paling sering sekali per 60 detik ketika aplikasi terlihat. GPS memakai Geolocation API dengan izin browser, tanpa fallback IP. Battery Status API hanya dipakai bila tersedia. iPhone umumnya tidak menyediakan API baterai; UI menjelaskan ketidaktersediaan tanpa angka buatan. Tidak ada pengambilan data ketika aplikasi ditutup/latar belakang.
+- API baru `/api/friends/device` memeriksa sesi, keanggotaan koneksi aktif, izin pemilik, session UUID, masa berlaku, origin, JSON, serta body maksimum 32 KiB. Publikasi dibatasi minimal 10 detik per grant dan tidak menerima user_id dari klien. Maksimal 50 sesi penerima aktif per pemilik. Seluruh respons private/no-store; payload perangkat tidak ditulis ke log.
+- Satu sampel terakhir per pemilik dan koneksi, tanpa tabel riwayat perjalanan. Koordinat, akurasi, status pengisian, serta waktu pembacaan hanya ditampilkan untuk izin yang sesuai. Sampel lebih dari 15 menit tidak dikirim/ditampilkan; lebih dari dua menit ditandai lama. Data kedaluwarsa dibersihkan pada permintaan pemilik berikutnya, bukan lewat janji penghapusan terjadwal.
+- Hentikan berbagi mengosongkan sampel dan mengganti sesi sehingga kiriman lama tidak bisa menghidupkannya kembali. Hentikan semua hanya memengaruhi data milik pemilik sesi. Gagal menghentikan di jaringan menyimpan penanda jeda lokal, mencegah pengambilan/pengiriman, dan mencoba menutup seluruh sesi pemilik sebelum melanjutkan. Putus pertemanan menghapus grant dan sampel kedua pihak; reconnect tidak mengembalikan izin perangkat.
+- Peta dibuka lewat tautan OpenStreetMap atas tindakan penerima, tanpa embed atau request peta otomatis. Referrer tidak dikirim. Waktu pembaruan selalu terlihat; ini bukan pemantauan lokasi latar belakang.
+- Migrasi additive: `migrations/005_friend_devices.sql`, diuji di development sebelum production. Verifikasi fitur: 20 pengujian otomatis lolos, termasuk validasi/proyeksi serta service dan route dengan PostgreSQL lokal PGlite; pemeriksaan browser mencakup opt-in dan sensor browser, callback GPS terlambat, pause saat latar belakang, kegagalan stop/reload, browser tanpa Battery API, serta layout dan kedua tema pada 320–1440 px.

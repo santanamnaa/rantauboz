@@ -3,6 +3,8 @@ import {createContext,useContext,useEffect,useRef,useState,type ReactNode} from 
 import './device-sharing.css';
 
 export type DeviceGrant={id:string;name:string;sessionId:string;shareLocation:boolean;shareBattery:boolean;batteryMode?:'auto'|'manual';expiresAt:string};
+type LocationFix={latitude:number;longitude:number;accuracy:number;observedAt:string};
+type LocationResult={value:LocationFix|null;issue:string};
 type BatteryNavigator=Navigator&{getBattery?:()=>Promise<{level:number;charging:boolean}>};
 type SharingContext={shares:DeviceGrant[];busy:boolean;error:string;sensorIssue:string;batterySupported:boolean;revision:number;refresh:()=>void;start:(id:string,location:boolean,battery:boolean,manualBattery?:{percent:number;charging:boolean})=>Promise<void>;stop:(id?:string)=>Promise<void>};
 const Context=createContext<SharingContext|null>(null);
@@ -26,9 +28,9 @@ export async function deviceRequest(connection?:string,action?:string,data?:unkn
 const pausedLocally=()=>{try{return localStorage.getItem(pauseKey)==='true'}catch{return false}};
 function setPause(paused:boolean){try{if(paused)localStorage.setItem(pauseKey,'true');else localStorage.removeItem(pauseKey)}catch{/* The in-memory pause still prevents capture in this tab. */}}
 function notifyTabs(){try{localStorage.setItem(changeKey,Date.now()+'-'+Math.random())}catch{}}
-function locationSample():Promise<{value:unknown;issue:string}>{
+function locationSample():Promise<LocationResult>{
  if(!navigator.geolocation)return Promise.resolve({value:null,issue:'Browser ini tidak menyediakan lokasi.'});
- return new Promise(resolve=>navigator.geolocation.getCurrentPosition(pos=>resolve({value:{latitude:pos.coords.latitude,longitude:pos.coords.longitude,accuracy:pos.coords.accuracy,observedAt:new Date(pos.timestamp).toISOString()},issue:''}),error=>resolve({value:null,issue:error.code===1?'Izin lokasi belum diberikan. Aktifkan izin lokasi di pengaturan browser.':error.code===3?'Lokasi belum terbaca. Coba di tempat dengan sinyal lebih baik.':'Lokasi belum tersedia dari perangkat ini.'}),{enableHighAccuracy:false,maximumAge:0,timeout:12000}));
+ return new Promise(resolve=>navigator.geolocation.getCurrentPosition(pos=>resolve({value:{latitude:pos.coords.latitude,longitude:pos.coords.longitude,accuracy:pos.coords.accuracy,observedAt:new Date(pos.timestamp).toISOString()},issue:''}),error=>resolve({value:null,issue:error.code===1?'Izin lokasi belum diberikan. Aktifkan izin lokasi di pengaturan browser.':error.code===3?'Lokasi belum terbaca. Coba di tempat dengan sinyal lebih baik.':'Lokasi belum tersedia dari perangkat ini.'}),{enableHighAccuracy:true,maximumAge:5000,timeout:12000}));
 }
 async function batterySample():Promise<{value:unknown;issue:string}>{
  const nav=navigator as BatteryNavigator;if(!nav.getBattery)return{value:null,issue:'Browser ini tidak menyediakan informasi baterai.'};
@@ -41,14 +43,18 @@ async function batterySample():Promise<{value:unknown;issue:string}>{
 }
 export function DeviceSharingProvider({accountKey,children}:{accountKey:string;children:ReactNode}){
  const [shares,setShares]=useState<DeviceGrant[]>([]),[busy,setBusy]=useState(false),[error,setError]=useState(''),[sensorIssue,setSensorIssue]=useState(''),[batterySupported,setBatterySupported]=useState(false),[revision,setRevision]=useState(0);
- const epoch=useRef(0),paused=useRef(false),mutating=useRef(false),localSessions=useRef<Record<string,string>>({});
+ const epoch=useRef(0),paused=useRef(false),mutating=useRef(false),localSessions=useRef<Record<string,string>>({}),stopLocationWatch=useRef<()=>void>(()=>{});
  useEffect(()=>{setBatterySupported(typeof (navigator as BatteryNavigator).getBattery==='function')},[]);
  useEffect(()=>{
   setShares([]);setError('');setSensorIssue('');paused.current=pausedLocally();localSessions.current=readSessions();
  },[accountKey]);
  useEffect(()=>{
   if(!accountKey)return;
-  let disposed=false,running=false;const controller=new AbortController();
+  let disposed=false,running=false,watchId:number|null=null;
+  let latestLocation:LocationResult|null=null;
+  const controller=new AbortController();
+  function clearLocation(){if(watchId!==null){navigator.geolocation.clearWatch(watchId);watchId=null}latestLocation=null}
+  stopLocationWatch.current=clearLocation;
   const valid=(seq:number)=>!disposed&&epoch.current===seq&&!mutating.current&&document.visibilityState==='visible';
   async function update(){
    if(disposed||running||mutating.current||document.visibilityState!=='visible')return;
@@ -58,15 +64,24 @@ export function DeviceSharingProvider({accountKey,children}:{accountKey:string;c
      await deviceRequest(undefined,'stopAll',{},controller.signal);
      if(!valid(seq))return;paused.current=false;setPause(false);localSessions.current={};writeSessions({});setShares([]);setError('');setSensorIssue('');notifyTabs();return;
     }
-    if(!Object.keys(localSessions.current).length){setShares([]);setError('');setSensorIssue('');return}
+    if(!Object.keys(localSessions.current).length){clearLocation();setShares([]);setError('');setSensorIssue('');return}
     const result=await deviceRequest(undefined,undefined,undefined,controller.signal);
     if(!valid(seq))return;
     const active:DeviceGrant[]=result.shares.filter((g:DeviceGrant)=>Date.parse(g.expiresAt)>Date.now()&&localSessions.current[g.id]===g.sessionId);
     const validSessions=Object.fromEntries(active.map(g=>[g.id,g.sessionId]));
     if(Object.keys(validSessions).length!==Object.keys(localSessions.current).length){localSessions.current=validSessions;writeSessions(validSessions)}
-    setShares(active);setError('');if(!active.length){setSensorIssue('');return}
+    setShares(active);setError('');if(!active.length){clearLocation();setSensorIssue('');return}
     const needLocation=active.some(g=>g.shareLocation),needBattery=active.some(g=>g.shareBattery&&g.batteryMode!=='manual');
-    const [location,battery]=await Promise.all([needLocation?locationSample():Promise.resolve({value:null,issue:''}),needBattery?batterySample():Promise.resolve({value:null,issue:''})]);
+    if(!needLocation)clearLocation();
+    if(needLocation&&watchId===null&&navigator.geolocation?.watchPosition){
+     watchId=navigator.geolocation.watchPosition(pos=>{if(valid(seq)&&!paused.current&&!pausedLocally())latestLocation={value:{latitude:pos.coords.latitude,longitude:pos.coords.longitude,accuracy:pos.coords.accuracy,observedAt:new Date(pos.timestamp).toISOString()},issue:''}},error=>{if(valid(seq))latestLocation={value:null,issue:error.code===1?'Izin lokasi belum diberikan. Aktifkan izin lokasi di pengaturan browser.':'Lokasi belum terbaca. Menunggu sinyal perangkat.'}},{enableHighAccuracy:true,maximumAge:5000,timeout:12000});
+    }
+    const cached=latestLocation;
+    const refreshFix=needLocation&&(!cached?.value||Date.now()-Date.parse(cached.value.observedAt)>60000);
+    const [fix,battery]=await Promise.all([refreshFix?locationSample():Promise.resolve(null),needBattery?batterySample():Promise.resolve({value:null,issue:''})]);
+    if(!valid(seq)||paused.current||pausedLocally())return;
+    if(fix&&(latestLocation===cached||!latestLocation?.value||fix.value&&Date.parse(fix.value.observedAt)>Date.parse(latestLocation.value.observedAt)))latestLocation=fix;
+    const location=needLocation?latestLocation||{value:null,issue:''}:{value:null,issue:''};
     if(!valid(seq)||paused.current||pausedLocally())return;
     setSensorIssue([location.issue,battery.issue].filter(Boolean).join(' '));
     const readings=active.map(g=>({connectionId:g.id,sessionId:g.sessionId,...(g.shareLocation?{location:location.value}:{}),...(g.shareBattery&&g.batteryMode!=='manual'?{battery:battery.value}:{})})).filter(r=>'location' in r||'battery' in r);
@@ -74,15 +89,15 @@ export function DeviceSharingProvider({accountKey,children}:{accountKey:string;c
     await deviceRequest(undefined,'publish',{readings},controller.signal);
    }catch(e){if(!disposed&&!controller.signal.aborted&&epoch.current===seq)setError(paused.current?'Penghentian belum tersimpan. Pengiriman dari perangkat ini sudah dijeda. Coba Hentikan semua lagi.':e instanceof Error?e.message:'Data perangkat belum diperbarui.')}finally{running=false}
   }
-  const onVisible=()=>{epoch.current++;if(document.visibilityState==='visible')void update()};
+  const onVisible=()=>{epoch.current++;clearLocation();if(document.visibilityState==='visible')void update()};
   const onStorage=(event:StorageEvent)=>{if(event.key===pauseKey||event.key===changeKey||event.key===sessionsKey){epoch.current++;paused.current=pausedLocally();localSessions.current=readSessions();setRevision(n=>n+1)}};
-  void update();const timer=setInterval(()=>void update(),60000);
+  void update();const timer=setInterval(()=>void update(),11000);
   document.addEventListener('visibilitychange',onVisible);window.addEventListener('online',onVisible);window.addEventListener('storage',onStorage);
-  return()=>{disposed=true;epoch.current++;controller.abort();clearInterval(timer);document.removeEventListener('visibilitychange',onVisible);window.removeEventListener('online',onVisible);window.removeEventListener('storage',onStorage)};
+  return()=>{disposed=true;epoch.current++;clearLocation();controller.abort();clearInterval(timer);document.removeEventListener('visibilitychange',onVisible);window.removeEventListener('online',onVisible);window.removeEventListener('storage',onStorage)};
  },[accountKey,revision]);
  async function start(id:string,location:boolean,battery:boolean,manualBattery?:{percent:number;charging:boolean}){
   if(mutating.current)throw new Error('Tunggu penyimpanan sebelumnya selesai.');
-  mutating.current=true;epoch.current++;setBusy(true);setError('');
+  mutating.current=true;epoch.current++;stopLocationWatch.current();setBusy(true);setError('');
   try{
    if(paused.current||pausedLocally())await deviceRequest(undefined,'stopAll',{});
    const result=await deviceRequest(undefined,'start',{connectionId:id,shareLocation:location,shareBattery:battery,batteryMode:manualBattery?'manual':'auto',...(manualBattery?{manualBattery}:{}),consent:true});
@@ -92,7 +107,7 @@ export function DeviceSharingProvider({accountKey,children}:{accountKey:string;c
  }
  async function stop(id?:string){
   if(mutating.current)throw new Error('Tunggu penyimpanan sebelumnya selesai.');
-  mutating.current=true;epoch.current++;paused.current=true;setPause(true);setBusy(true);setError('');
+  mutating.current=true;epoch.current++;stopLocationWatch.current();paused.current=true;setPause(true);setBusy(true);setError('');
   try{
    await deviceRequest(undefined,id?'stop':'stopAll',id?{connectionId:id}:{});
    if(id){delete localSessions.current[id]}else{localSessions.current={}}writeSessions(localSessions.current);

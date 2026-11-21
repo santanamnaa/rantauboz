@@ -1,21 +1,24 @@
 'use client';
 import {useEffect,useState,type ReactNode,type FormEvent} from 'react';
+import dynamic from 'next/dynamic';
 import BozImage from './boz-image';
 import {deviceRequest,useDeviceSharing} from './device-sharing';
+
+const FriendLocationMap=dynamic(()=>import('./friend-location-map'),{ssr:false,loading:()=> <p className="device-caption">Menyiapkan peta…</p>});
 
 type Own={shareLocation:boolean;shareBattery:boolean;expiresAt:string|null;sessionId:string|null;batteryMode?:'auto'|'manual';manualBattery?:{percent:number;charging:boolean}|null};
 type Peer={sharingLocation:boolean;sharingBattery:boolean;expiresAt:string|null;location:{latitude:number;longitude:number;accuracy:number;observedAt:string}|null;battery:{percent:number;charging:boolean;observedAt:string;source?:'auto'|'manual'}|null};
 type Status={own:Own;peer:Peer};
 const time=(value:string)=>new Date(value).toLocaleString('id-ID',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});
-function sampleLabel(at:string,now:number){const age=Math.max(0,Math.floor((now-Date.parse(at))/60000));return age<1?'Diperbarui barusan':age+' menit lalu · '+time(at)}
+function sampleLabel(at:string,now:number){const seconds=Math.max(0,Math.floor((now-Date.parse(at))/1000));return seconds<5?'Diperbarui barusan':seconds<60?seconds+' detik lalu':Math.floor(seconds/60)+' menit lalu · '+time(at)}
 export default function FriendDeviceCard({id,name,sheet}:{id:string;name:string;sheet:(title:string,body:ReactNode,onClose:()=>void)=>ReactNode}){
  const sharing=useDeviceSharing();
  const [status,setStatus]=useState<Status|null>(null),[error,setError]=useState(''),[editing,setEditing]=useState(false),[shareLocation,setShareLocation]=useState(false),[shareBattery,setShareBattery]=useState(false),[formError,setFormError]=useState(''),[refresh,setRefresh]=useState(0),[now,setNow]=useState(Date.now());
  useEffect(()=>{
-  let active=true;const controller=new AbortController();
-  async function load(){if(document.visibilityState!=='visible')return;try{const value=await deviceRequest(id,undefined,undefined,controller.signal);if(active){setStatus(value);setError('');setNow(Date.now())}}catch(e){if(active&&!controller.signal.aborted){setStatus(null);setError(e instanceof Error?e.message:'Data perangkat belum tersedia.')}}}
+  let active=true,loading=false;const controller=new AbortController();
+  async function load(){if(document.visibilityState!=='visible'||loading)return;loading=true;try{const value=await deviceRequest(id,undefined,undefined,controller.signal);if(active){setStatus(value);setError('');setNow(Date.now())}}catch(e){if(active&&!controller.signal.aborted){setStatus(null);setError(e instanceof Error?e.message:'Data perangkat belum tersedia.')}}finally{loading=false}}
   const onVisible=()=>{setStatus(null);void load()};
-  void load();const timer=setInterval(()=>{setNow(Date.now());void load()},60000);document.addEventListener('visibilitychange',onVisible);window.addEventListener('online',onVisible);
+  void load();const timer=setInterval(()=>{setNow(Date.now());void load()},5000);document.addEventListener('visibilitychange',onVisible);window.addEventListener('online',onVisible);
   return()=>{active=false;controller.abort();clearInterval(timer);document.removeEventListener('visibilitychange',onVisible);window.removeEventListener('online',onVisible)};
  },[id,sharing.revision,refresh]);
  const [batteryMode,setBatteryMode]=useState<'auto'|'manual'>('auto'),[manualPercent,setManualPercent]=useState(''),[manualCharging,setManualCharging]=useState(false);
@@ -26,18 +29,16 @@ export default function FriendDeviceCard({id,name,sheet}:{id:string;name:string;
  async function submit(e:FormEvent){e.preventDefault();setFormError('');try{if(!shareLocation&&!shareBattery)throw new Error('Pilih lokasi atau baterai yang ingin kamu bagikan.');const manual=shareBattery&&batteryMode==='manual';if(manual&&(manualPercent.trim()===''||!Number.isInteger(Number(manualPercent))||Number(manualPercent)<0||Number(manualPercent)>100))throw new Error('Isi baterai dari 0 sampai 100.');if(shareBattery&&batteryMode==='auto'&&!sharing.batterySupported)throw new Error('Pilih Isi sendiri untuk browser ini.');await sharing.start(id,shareLocation,shareBattery,manual?{percent:Number(manualPercent),charging:manualCharging}:undefined);setEditing(false);setRefresh(n=>n+1)}catch(e){setFormError(e instanceof Error?e.message:'Belum tersimpan.')}}
  async function stop(){setFormError('');try{await sharing.stop(id);setEditing(false);setRefresh(n=>n+1)}catch(e){setFormError(e instanceof Error?e.message:'Belum tersimpan.')}}
  const locationFresh=!!loc&&now-Date.parse(loc.observedAt)<=15*60000;
- const mapLatitude=loc?Math.max(-85,Math.min(85,loc.latitude)):0;
- const mapUrl=locationFresh?'https://www.openstreetmap.org/export/embed.html?'+new URLSearchParams({bbox:[Math.max(-180,loc!.longitude-.008),Math.max(-85.0511,mapLatitude-.005),Math.min(180,loc!.longitude+.008),Math.min(85.0511,mapLatitude+.005)].join(','),layer:'mapnik',marker:loc!.latitude+','+loc!.longitude}).toString():null;
  const batteryFresh=!!battery&&now-Date.parse(battery.observedAt)<=15*60000;
  const dialog=<form className="device-sharing-form" onSubmit={submit} aria-busy={sharing.busy}>
   <p>Bagikan ke <strong>{name}</strong> selama <strong>1 jam</strong>. Pilih yang boleh dia lihat.</p>
-  <label className={'device-option '+(shareLocation?'selected':'')}><input type="checkbox" checked={shareLocation} onChange={e=>setShareLocation(e.target.checked)} disabled={sharing.busy}/><span><strong>Bagikan lokasiku</strong><small>Perlu izin lokasi dari browser.</small></span></label>
+  <label className={'device-option '+(shareLocation?'selected':'')}><input type="checkbox" checked={shareLocation} onChange={e=>setShareLocation(e.target.checked)} disabled={sharing.busy}/><span><strong>Bagikan lokasiku</strong><small>Bergerak otomatis di peta saat aplikasi ini terbuka. Perlu izin lokasi.</small></span></label>
   <label className={'device-option '+(shareBattery?'selected':'')}><input type="checkbox" checked={shareBattery} onChange={e=>setShareBattery(e.target.checked)} disabled={sharing.busy}/><span><strong>Bagikan baterai perangkat</strong><small>Bisa dari HP, tablet, atau laptop.</small></span></label>
   {shareBattery&&<fieldset className="device-battery-settings" disabled={sharing.busy}><legend>Cara berbagi baterai</legend><div className="device-battery-modes"><label><input type="radio" name="battery-mode" value="auto" checked={batteryMode==='auto'} disabled={!sharing.batterySupported} onChange={()=>setBatteryMode('auto')}/>Otomatis</label><label><input type="radio" name="battery-mode" value="manual" checked={batteryMode==='manual'} onChange={()=>setBatteryMode('manual')}/>Isi sendiri</label></div>
    {batteryMode==='auto'?<p>Angka dibaca dari perangkat ini saat aplikasi terbuka. Jika tidak terbaca, pilih Isi sendiri.</p>:<><p>{sharing.batterySupported?'Isi angka yang terlihat di perangkatmu.':'Browser ini tidak menyediakan informasi baterai otomatis. Kamu tetap bisa berbagi dengan mengisi angkanya.'} Teman akan melihat label “Diisi manual”.</p><label className="device-percent-label">Baterai sekarang (%)<input type="number" inputMode="numeric" min="0" max="100" step="1" required value={manualPercent} onChange={e=>setManualPercent(e.target.value)} placeholder="Contoh: 75"/></label><label className="device-manual-charging"><input type="checkbox" checked={manualCharging} onChange={e=>setManualCharging(e.target.checked)}/>Sedang diisi daya</label><p>Perbarui sendiri saat berubah. Angka disembunyikan dari teman setelah 15 menit tanpa pembaruan.</p></>}
   </fieldset>}
   <p className="device-privacy">Lokasi dan baterai otomatis diperbarui saat aplikasi terbuka. Angka manual hanya dikirim saat kamu menyimpan.</p>
-  <details className="device-info"><summary>Cara data dibagikan</summary><p>Izin ini terpisah dari budget. Hanya satu lokasi terakhir yang disimpan, bukan riwayat perjalanan. Data dikirim dari browser tempat kamu mengaktifkan berbagi; pembaruan berhenti saat aplikasi ditutup atau masuk latar belakang.</p></details>
+  <details className="device-info"><summary>Cara data dibagikan</summary><p>Izin ini terpisah dari budget. Hanya satu lokasi terakhir yang disimpan, bukan riwayat perjalanan. Data dikirim dari browser tempat kamu mengaktifkan berbagi; pembaruan berhenti saat aplikasi ditutup, masuk latar belakang, atau layar dikunci. Ini belum seperti pelacakan latar belakang Find My.</p></details>
   {formError&&<p className="error" role="alert">{formError}</p>}
   <button className="primary full" disabled={sharing.busy}>{sharing.busy?'Menyimpan…':own?'Perbarui berbagi 1 jam':'Mulai berbagi 1 jam'}</button>
   {own&&<button className="subtle danger full" type="button" disabled={sharing.busy} onClick={()=>void stop()}>Hentikan berbagi ke {name}</button>}
@@ -47,7 +48,7 @@ export default function FriendDeviceCard({id,name,sheet}:{id:string;name:string;
    <div className="device-heading"><BozImage pose="travel"/><div><h2>Lokasi & baterai</h2><p>Dari perangkat {name}</p></div><button className="subtle" onClick={()=>setRefresh(n=>n+1)}>Perbarui</button></div>
    {error?<div className="device-empty" role="status"><p>{error}</p><button className="subtle" onClick={()=>setRefresh(n=>n+1)}>Coba lagi</button></div>:!status?<p className="device-caption" role="status">Memuat data perangkat…</p>:<div className="device-status-grid">
     <div className="device-location"><span>Lokasi terakhir</span>{locationFresh?<>
-     <strong className="device-unavailable">Lokasi dibagikan</strong>
+     <strong className={'device-unavailable '+(now-Date.parse(loc!.observedAt)<=30000?'device-location-current':'')}>{now-Date.parse(loc!.observedAt)<=30000?'Baru diperbarui':'Lokasi terakhir'}</strong>
      <small>{sampleLabel(loc!.observedAt,now)}</small>
      {now-Date.parse(loc!.observedAt)>120000&&<small className="device-stale">Data lama, bukan lokasi langsung.</small>}
      <details className="device-location-detail"><summary>Detail lokasi</summary><small>{loc!.latitude.toFixed(5)}, {loc!.longitude.toFixed(5)}<br/>Akurasi sekitar {Math.round(loc!.accuracy)} meter</small></details>
@@ -59,9 +60,9 @@ export default function FriendDeviceCard({id,name,sheet}:{id:string;name:string;
      {now-Date.parse(battery!.observedAt)>120000&&<small className="device-stale">Data lama.</small>}
     </>:<><strong className="device-unavailable">{live&&status.peer.sharingBattery?'Belum tersedia':'Tidak dibagikan'}</strong><small>{live&&status.peer.sharingBattery?'Menunggu data browser teman.':name+' belum berbagi baterai.'}</small></>}</div>
    </div>}
-   {mapUrl&&<div className="device-map"><iframe title={'Peta lokasi terakhir '+name} src={mapUrl} loading="lazy" referrerPolicy="no-referrer" sandbox="allow-scripts allow-same-origin"/><span>Peta lokasi terakhir · OpenStreetMap</span></div>}
+   {locationFresh&&<FriendLocationMap latitude={loc!.latitude} longitude={loc!.longitude} accuracy={loc!.accuracy} name={name}/>}
    <div className="device-own-sharing"><span>{own?<><strong>Kamu sedang berbagi</strong><small>Sampai {time(status!.own.expiresAt!)}</small></>:<><strong>Data perangkatmu</strong><small>Belum dibagikan ke {name}</small></>}</span><button className="secondary" aria-label="Atur yang kubagikan" onClick={open} disabled={!status||sharing.busy}>{own&&status?.own.batteryMode==='manual'?'Perbarui baterai':'Atur berbagi'}</button></div>
-   <details className="device-info device-data-note"><summary>Tentang pembaruan data</summary><p>Lokasi dan baterai otomatis diperbarui saat aplikasi teman terbuka. Baterai berlabel Diisi manual diisi sendiri oleh teman, bukan dibaca dari perangkat. Data lebih dari 15 menit disembunyikan. Berbagi budget tidak otomatis membuka data perangkat.</p></details>
+   <details className="device-info device-data-note"><summary>Tentang pembaruan data</summary><p>Lokasi diperbarui sekitar setiap 10–20 detik saat aplikasi teman terbuka. Pembaruan berhenti saat aplikasi ditutup atau layar dikunci. Baterai otomatis juga membutuhkan aplikasi terbuka. Baterai berlabel Diisi manual diisi sendiri oleh teman, bukan dibaca dari perangkat. Data lebih dari 15 menit disembunyikan. Berbagi budget tidak otomatis membuka data perangkat.</p></details>
   </section>
   {editing&&sheet('Bagikan lokasi & baterai',dialog,()=>{if(!sharing.busy)setEditing(false)})}
  </>;

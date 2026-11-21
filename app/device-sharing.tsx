@@ -2,9 +2,9 @@
 import {createContext,useContext,useEffect,useRef,useState,type ReactNode} from 'react';
 import './device-sharing.css';
 
-export type DeviceGrant={id:string;name:string;sessionId:string;shareLocation:boolean;shareBattery:boolean;expiresAt:string};
+export type DeviceGrant={id:string;name:string;sessionId:string;shareLocation:boolean;shareBattery:boolean;batteryMode?:'auto'|'manual';expiresAt:string};
 type BatteryNavigator=Navigator&{getBattery?:()=>Promise<{level:number;charging:boolean}>};
-type SharingContext={shares:DeviceGrant[];busy:boolean;error:string;sensorIssue:string;batterySupported:boolean;revision:number;refresh:()=>void;start:(id:string,location:boolean,battery:boolean)=>Promise<void>;stop:(id?:string)=>Promise<void>};
+type SharingContext={shares:DeviceGrant[];busy:boolean;error:string;sensorIssue:string;batterySupported:boolean;revision:number;refresh:()=>void;start:(id:string,location:boolean,battery:boolean,manualBattery?:{percent:number;charging:boolean})=>Promise<void>;stop:(id?:string)=>Promise<void>};
 const Context=createContext<SharingContext|null>(null);
 const pauseKey='rantauboz-device-sharing-paused',changeKey='rantauboz-device-sharing-change',sessionsKey='rantauboz-device-sharing-sessions';
 function readSessions():Record<string,string>{
@@ -65,13 +65,14 @@ export function DeviceSharingProvider({accountKey,children}:{accountKey:string;c
     const validSessions=Object.fromEntries(active.map(g=>[g.id,g.sessionId]));
     if(Object.keys(validSessions).length!==Object.keys(localSessions.current).length){localSessions.current=validSessions;writeSessions(validSessions)}
     setShares(active);setError('');if(!active.length){setSensorIssue('');return}
-    const needLocation=active.some(g=>g.shareLocation),needBattery=active.some(g=>g.shareBattery);
+    const needLocation=active.some(g=>g.shareLocation),needBattery=active.some(g=>g.shareBattery&&g.batteryMode!=='manual');
     const [location,battery]=await Promise.all([needLocation?locationSample():Promise.resolve({value:null,issue:''}),needBattery?batterySample():Promise.resolve({value:null,issue:''})]);
     if(!valid(seq)||paused.current||pausedLocally())return;
     setSensorIssue([location.issue,battery.issue].filter(Boolean).join(' '));
-    const readings=active.map(g=>({connectionId:g.id,sessionId:g.sessionId,...(g.shareLocation?{location:location.value}:{}),...(g.shareBattery?{battery:battery.value}:{})}));
+    const readings=active.map(g=>({connectionId:g.id,sessionId:g.sessionId,...(g.shareLocation?{location:location.value}:{}),...(g.shareBattery&&g.batteryMode!=='manual'?{battery:battery.value}:{})})).filter(r=>'location' in r||'battery' in r);
+    if(!readings.length)return;
     await deviceRequest(undefined,'publish',{readings},controller.signal);
-   }catch(e){if(!disposed&&!controller.signal.aborted&&epoch.current===seq)setError(paused.current?'Penghentian belum tersimpan. Pengiriman dari HP ini sudah dijeda. Coba Hentikan semua lagi.':e instanceof Error?e.message:'Data perangkat belum diperbarui.')}finally{running=false}
+   }catch(e){if(!disposed&&!controller.signal.aborted&&epoch.current===seq)setError(paused.current?'Penghentian belum tersimpan. Pengiriman dari perangkat ini sudah dijeda. Coba Hentikan semua lagi.':e instanceof Error?e.message:'Data perangkat belum diperbarui.')}finally{running=false}
   }
   const onVisible=()=>{epoch.current++;if(document.visibilityState==='visible')void update()};
   const onStorage=(event:StorageEvent)=>{if(event.key===pauseKey||event.key===changeKey||event.key===sessionsKey){epoch.current++;paused.current=pausedLocally();localSessions.current=readSessions();setRevision(n=>n+1)}};
@@ -79,12 +80,12 @@ export function DeviceSharingProvider({accountKey,children}:{accountKey:string;c
   document.addEventListener('visibilitychange',onVisible);window.addEventListener('online',onVisible);window.addEventListener('storage',onStorage);
   return()=>{disposed=true;epoch.current++;controller.abort();clearInterval(timer);document.removeEventListener('visibilitychange',onVisible);window.removeEventListener('online',onVisible);window.removeEventListener('storage',onStorage)};
  },[accountKey,revision]);
- async function start(id:string,location:boolean,battery:boolean){
+ async function start(id:string,location:boolean,battery:boolean,manualBattery?:{percent:number;charging:boolean}){
   if(mutating.current)throw new Error('Tunggu penyimpanan sebelumnya selesai.');
   mutating.current=true;epoch.current++;setBusy(true);setError('');
   try{
    if(paused.current||pausedLocally())await deviceRequest(undefined,'stopAll',{});
-   const result=await deviceRequest(undefined,'start',{connectionId:id,shareLocation:location,shareBattery:battery,consent:true});
+   const result=await deviceRequest(undefined,'start',{connectionId:id,shareLocation:location,shareBattery:battery,batteryMode:manualBattery?'manual':'auto',...(manualBattery?{manualBattery}:{}),consent:true});
    localSessions.current={...localSessions.current,[id]:result.own.sessionId};writeSessions(localSessions.current);
    paused.current=false;setPause(false);notifyTabs();setRevision(n=>n+1);
   }catch(e){throw e}finally{mutating.current=false;setBusy(false)}
@@ -96,7 +97,7 @@ export function DeviceSharingProvider({accountKey,children}:{accountKey:string;c
    await deviceRequest(undefined,id?'stop':'stopAll',id?{connectionId:id}:{});
    if(id){delete localSessions.current[id]}else{localSessions.current={}}writeSessions(localSessions.current);
    setShares(current=>id?current.filter(g=>g.id!==id):[]);paused.current=false;setPause(false);setSensorIssue('');notifyTabs();setRevision(n=>n+1);
-  }catch(e){const message='Penghentian belum tersimpan. Pengiriman dari HP ini sudah dijeda. Coba Hentikan semua lagi.';setError(message);throw new Error(message)}finally{mutating.current=false;setBusy(false)}
+  }catch(e){const message='Penghentian belum tersimpan. Pengiriman dari perangkat ini sudah dijeda. Coba Hentikan semua lagi.';setError(message);throw new Error(message)}finally{mutating.current=false;setBusy(false)}
  }
  return <Context.Provider value={{shares,busy,error,sensorIssue,batterySupported,revision,refresh:()=>{epoch.current++;setRevision(n=>n+1)},start,stop}}>{children}</Context.Provider>;
 }
@@ -104,5 +105,5 @@ export function useDeviceSharing(){const context=useContext(Context);if(!context
 export function DeviceSharingBanner(){
  const {shares,busy,error,sensorIssue,stop}=useDeviceSharing();
  if(!shares.length&&!error)return null;
- return <aside className="device-sharing-banner" aria-label="Status berbagi perangkat"><div><strong>{shares.length?'Berbagi '+[shares.some(g=>g.shareLocation)?'lokasi':'',shares.some(g=>g.shareBattery)?'baterai':''].filter(Boolean).join(' & ')+' · '+shares.length+' teman':'Berbagi perangkat dijeda'}</strong><small>{error||sensorIssue||'Aktif saat aplikasi terbuka. Sesi berakhir otomatis setelah 1 jam.'}</small></div><button type="button" disabled={busy} onClick={()=>void stop().catch(()=>{})}>{busy?'Menyimpan…':'Hentikan semua'}</button></aside>;
+ return <aside className="device-sharing-banner" aria-label="Status berbagi perangkat"><div><strong>{shares.length?'Berbagi '+[shares.some(g=>g.shareLocation)?'lokasi':'',shares.some(g=>g.shareBattery)?'baterai':''].filter(Boolean).join(' & ')+' · '+shares.length+' teman':'Berbagi perangkat dijeda'}</strong><small>{error||sensorIssue||(shares.some(g=>g.shareBattery&&g.batteryMode==='manual')?'Baterai diisi manual. Perbarui angkanya saat berubah; data disembunyikan setelah 15 menit.':'Aktif saat aplikasi terbuka. Sesi berakhir otomatis setelah 1 jam.')}</small></div><button type="button" disabled={busy} onClick={()=>void stop().catch(()=>{})}>{busy?'Menyimpan…':'Hentikan semua'}</button></aside>;
 }

@@ -28,3 +28,12 @@ test('peer data is permission-projected, short lived, and does not expose sessio
  assert.equal(peerDeviceStatus({...row,share_location:false},now).location,null);
  assert.deepEqual(peerDeviceStatus(null,now),{sharingLocation:false,sharingBattery:false,expiresAt:null,location:null,battery:null});
 });
+
+ test('manual battery needs explicit mode, battery consent, integer percent, and no client timestamp',()=>{
+ const data={connectionId:id,shareLocation:false,shareBattery:true,batteryMode:'manual',manualBattery:{percent:0,charging:false},consent:true};
+ const parse=data=>parseDeviceAction({action:'start',data});
+ assert.equal(parse(data).data.manualBattery.percent,0);assert.equal(parse({...data,manualBattery:{percent:100,charging:true}}).data.manualBattery.percent,100);
+ for(const changes of [{shareBattery:false,shareLocation:true},{manualBattery:undefined},{batteryMode:'auto'},{manualBattery:{percent:-1,charging:false}},{manualBattery:{percent:101,charging:false}},{manualBattery:{percent:32.5,charging:false}},{manualBattery:{percent:75,charging:false,observedAt:observedAt()}}])assert.throws(()=>parse({...data,...changes}));
+ const now=Date.now(),row={share_battery:true,share_location:false,battery_mode:'manual',battery_percent:66,battery_charging:false,battery_at:new Date(now).toISOString(),expires_at:new Date(now+3600000).toISOString()};
+ assert.equal(peerDeviceStatus(row,now).battery.source,'manual');assert.equal(peerDeviceStatus({...row,battery_at:new Date(now-deviceSampleLifetimeMs-1).toISOString()},now).battery,null);
+ });

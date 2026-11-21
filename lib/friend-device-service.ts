@@ -7,7 +7,7 @@ import {ownDeviceSettings,peerDeviceStatus} from './friend-device-validation.mjs
 type SensorLocation={latitude:number;longitude:number;accuracy:number;observedAt:string};
 type SensorBattery={percent:number;charging:boolean;observedAt:string};
 type DeviceReading={connectionId:string;sessionId:string;location?:SensorLocation|null;battery?:SensorBattery|null};
-type DeviceActionData={connectionId?:string;shareLocation?:boolean;shareBattery?:boolean;readings?:DeviceReading[]};
+type DeviceActionData={connectionId?:string;shareLocation?:boolean;shareBattery?:boolean;batteryMode?:'auto'|'manual';manualBattery?:{percent:number;charging:boolean};readings?:DeviceReading[]};
 
 const fieldsToClear=`latitude=NULL,longitude=NULL,accuracy=NULL,location_at=NULL,battery_percent=NULL,battery_charging=NULL,battery_at=NULL,last_upload_at=NULL`;
 async function connection(c:PoolClient,user:string,id:string){
@@ -18,7 +18,7 @@ async function connection(c:PoolClient,user:string,id:string){
 export async function ownDeviceShares(user:string){
  // Expired samples are also cleared on the owner's next request; never keep a trail of positions.
  await pool.query(`UPDATE friend_device_shares SET ${fieldsToClear} WHERE owner_id=$1 AND expires_at<=now() AND (location_at IS NOT NULL OR battery_at IS NOT NULL)`,[user]);
- const r=await pool.query(`SELECT d.connection_id AS id,d.session_id AS "sessionId",d.share_location AS "shareLocation",d.share_battery AS "shareBattery",d.expires_at AS "expiresAt",CASE WHEN f.low_user=$1 THEN f.high_name ELSE f.low_name END AS name FROM friend_device_shares d JOIN friend_connections f ON f.id=d.connection_id WHERE d.owner_id=$1 AND f.active AND (f.low_user=$1 OR f.high_user=$1) AND d.expires_at>now() AND (d.share_location OR d.share_battery) ORDER BY d.connection_id`,[user]);
+ const r=await pool.query(`SELECT d.connection_id AS id,d.session_id AS "sessionId",d.share_location AS "shareLocation",d.share_battery AS "shareBattery",d.battery_mode AS "batteryMode",d.expires_at AS "expiresAt",CASE WHEN f.low_user=$1 THEN f.high_name ELSE f.low_name END AS name FROM friend_device_shares d JOIN friend_connections f ON f.id=d.connection_id WHERE d.owner_id=$1 AND f.active AND (f.low_user=$1 OR f.high_user=$1) AND d.expires_at>now() AND (d.share_location OR d.share_battery) ORDER BY d.connection_id`,[user]);
  return{shares:r.rows,serverTime:new Date().toISOString()};
 }
 export async function friendDeviceStatus(user:string,id:string){
@@ -36,7 +36,10 @@ export async function deviceAction(user:string,action:string,data:DeviceActionDa
    await connection(c,user,data.connectionId);
    const limit=await c.query('SELECT count(*)::int AS count FROM friend_device_shares WHERE owner_id=$1 AND expires_at>now() AND (share_location OR share_battery) AND connection_id<>$2',[user,data.connectionId]);
    if(limit.rows[0].count>=50)throw new AppError('Maksimal berbagi ke 50 teman sekaligus. Hentikan sesi lain terlebih dahulu.');
-   const r=await c.query(`INSERT INTO friend_device_shares(connection_id,owner_id,session_id,share_location,share_battery,expires_at) VALUES($1,$2,$3,$4,$5,now()+interval '1 hour') ON CONFLICT(connection_id,owner_id) DO UPDATE SET session_id=excluded.session_id,share_location=excluded.share_location,share_battery=excluded.share_battery,expires_at=excluded.expires_at,${fieldsToClear},updated_at=now() RETURNING *`,[data.connectionId,user,randomUUID(),data.shareLocation,data.shareBattery]);
+   const r=await c.query(`INSERT INTO friend_device_shares(connection_id,owner_id,session_id,share_location,share_battery,battery_mode,expires_at) VALUES($1,$2,$3,$4,$5,$6,now()+interval '1 hour') ON CONFLICT(connection_id,owner_id) DO UPDATE SET session_id=excluded.session_id,share_location=excluded.share_location,share_battery=excluded.share_battery,battery_mode=excluded.battery_mode,expires_at=excluded.expires_at,${fieldsToClear},updated_at=now() RETURNING *`,[data.connectionId,user,randomUUID(),data.shareLocation,data.shareBattery,data.batteryMode||'auto']);
+   if(data.shareBattery&&data.batteryMode==='manual'&&data.manualBattery){
+    const manual=await c.query('UPDATE friend_device_shares SET battery_percent=$3,battery_charging=$4,battery_at=now() WHERE connection_id=$1 AND owner_id=$2 RETURNING *',[data.connectionId,user,data.manualBattery.percent,data.manualBattery.charging]);r.rows[0]=manual.rows[0];
+   }
    await c.query('COMMIT');return{own:ownDeviceSettings(r.rows[0])};
   }
   if(action==='stopAll'){
@@ -57,7 +60,7 @@ export async function deviceAction(user:string,action:string,data:DeviceActionDa
     const row=r.rows[0];if(!row)continue;
     if(row.last_upload_at&&Date.now()-new Date(row.last_upload_at).getTime()<10000){accepted.push(sample.connectionId);continue}
     const loc=row.share_location&&sample.location!==undefined?sample.location:undefined;
-    const battery=row.share_battery&&sample.battery!==undefined?sample.battery:undefined;
+    const battery=row.share_battery&&row.battery_mode!=='manual'&&sample.battery!==undefined?sample.battery:undefined;
     // A failed sensor read explicitly clears the old sample instead of looking current.
     const updateLocation=loc!==undefined&&(!loc||!row.location_at||Date.parse(loc.observedAt)>=new Date(row.location_at).getTime());
     const updateBattery=battery!==undefined&&(!battery||!row.battery_at||Date.parse(battery.observedAt)>=new Date(row.battery_at).getTime());
